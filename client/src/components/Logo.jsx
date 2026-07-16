@@ -52,13 +52,13 @@ const Logo = ({ className = "h-8", light = false }) => {
         </text>
 
         {/* Contactless Arches above 'q' */}
-        <g transform="translate(118, 5)" stroke="#8B55FD" strokeWidth="2.5" strokeLinecap="round">
-          {/* Inner Arc */}
-          <path d="M2.5 16.5 C3.8 14.5, 6.2 14.5, 7.5 16.5" />
-          {/* Middle Arc */}
-          <path d="M-0.5 11.5 C2.5 7.5, 8.5 7.5, 11.5 11.5" />
-          {/* Outer Arc */}
-          <path d="M-3.5 6.5 C1.0 0.5, 12.0 0.5, 16.5 6.5" />
+        <g transform="translate(114, 22) rotate(-20)" stroke="#8B55FD" strokeWidth="2.8" strokeLinecap="round" fill="none">
+          {/* Inner Wave */}
+          <path d="M 8,0 A 8,8 0 0,0 0,-8" />
+          {/* Middle Wave */}
+          <path d="M 14,0 A 14,14 0 0,0 0,-14" />
+          {/* Outer Wave */}
+          <path d="M 20,0 A 20,20 0 0,0 0,-20" />
         </g>
       </svg>
     </div>
