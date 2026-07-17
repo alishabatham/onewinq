@@ -10,9 +10,15 @@ const Profile = require('../models/Profile');
 // Configure Local Multer Storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    const uploadDir = process.env.NODE_ENV === 'production'
+      ? '/tmp'
+      : path.join(__dirname, '../uploads');
+    if (process.env.NODE_ENV !== 'production' && !fs.existsSync(uploadDir)) {
+      try {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      } catch (err) {
+        console.warn('Could not create directory:', err.message);
+      }
     }
     cb(null, uploadDir);
   },
