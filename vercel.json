@@ -2,11 +2,11 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.js",
+      "src": "backend/server.js",
       "use": "@vercel/node"
     },
     {
-      "src": "client/package.json",
+      "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist"
@@ -16,19 +16,19 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "api/index.js"
+      "dest": "backend/server.js"
     },
     {
       "src": "/uploads/(.*)",
-      "dest": "api/index.js"
+      "dest": "backend/server.js"
     },
     {
       "src": "/assets/(.*)",
-      "dest": "client/assets/$1"
+      "dest": "frontend/assets/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "client/$1",
+      "dest": "frontend/$1",
       "headers": {
         "cache-control": "no-cache"
       }

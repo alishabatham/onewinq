@@ -1,5 +1,5 @@
 {
-  "name": "onewinq-server",
+  "name": "backend",
   "version": "1.0.0",
   "description": "Backend API for OneWinq NFC Card Management MVP",
   "main": "server.js",
@@ -15,7 +15,8 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.1",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "onewinq-root": "file:.."
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

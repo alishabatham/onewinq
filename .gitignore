@@ -1,7 +1,7 @@
 # Dependency directories
 node_modules/
-client/node_modules/
-server/node_modules/
+frontend/node_modules/
+backend/node_modules/
 
 # Local databases
 mongodb_data/
@@ -12,13 +12,13 @@ mongodb_data/
 .env.development.local
 .env.test.local
 .env.production.local
-server/.env
-client/.env
+backend/.env
+frontend/.env
 
 # Production builds
 dist/
-client/dist/
-server/dist/
+frontend/dist/
+backend/dist/
 
 # Logs
 npm-debug.log*
