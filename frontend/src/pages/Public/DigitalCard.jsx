@@ -22,6 +22,35 @@ const DigitalCard = () => {
     fetchPublicProfile();
   }, [cardId]);
 
+  useEffect(() => {
+    if (profile) {
+      // Set page title to profile name
+      document.title = `${profile.name} | OneWinq`;
+
+      // Set Apple Touch Icon to profile photo (for home screen bookmark icon)
+      let appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+      if (!appleIcon) {
+        appleIcon = document.createElement('link');
+        appleIcon.rel = 'apple-touch-icon';
+        document.head.appendChild(appleIcon);
+      }
+      if (profile.profilePhoto) {
+        appleIcon.href = profile.profilePhoto;
+      } else {
+        appleIcon.href = '/favicon.svg';
+      }
+
+      // Set mobile web app title
+      let metaAppTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (!metaAppTitle) {
+        metaAppTitle = document.createElement('meta');
+        metaAppTitle.name = 'apple-mobile-web-app-title';
+        document.head.appendChild(metaAppTitle);
+      }
+      metaAppTitle.content = profile.name;
+    }
+  }, [profile]);
+
   const fetchPublicProfile = async () => {
     try {
       const isTap = searchParams.get('tap') === 'true' || searchParams.get('src') === 'nfc';
