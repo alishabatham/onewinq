@@ -30,7 +30,8 @@ const DigitalCard = () => {
       if (err.response?.status === 403 && err.response?.data?.status === 'paused') {
         setCardStatus('paused');
       } else {
-        setError(err.response?.data?.message || 'Digital profile not found.');
+        // Redirect to standard OneWinq website homepage if card is not found or not linked
+        window.location.href = '/';
       }
     } finally {
       setLoading(false);

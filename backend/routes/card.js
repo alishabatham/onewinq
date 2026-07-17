@@ -49,11 +49,9 @@ router.post('/link', protect, async (req, res) => {
       card.status = 'active';
       await card.save();
     } else {
-      // If card doesn't exist, for a seamless MVP developer/testing flow, auto-create it and link it!
-      card = await Card.create({
-        cardId,
-        user: req.user._id,
-        status: 'active',
+      return res.status(404).json({
+        success: false,
+        message: 'Invalid Card ID. This card code has not been pre-registered by the admin.',
       });
     }
 
