@@ -94,15 +94,15 @@ const AdminUsers = () => {
   }
 
   return (
-    <div className="space-y-6 text-left">
+    <div className="space-y-6 text-left text-slate-100">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Manage Users</h1>
-          <p className="text-sm text-slate-550 mt-1">Add, update, or remove users and manage their card linkages.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white font-outfit">Manage Users</h1>
+          <p className="text-sm text-slate-400 mt-1">Add, update, or remove users and manage their card linkages.</p>
         </div>
         <button
           onClick={fetchUsers}
-          className="w-full sm:w-auto p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-500 hover:text-slate-800 transition-colors flex justify-center items-center space-x-1 shadow-xs cursor-pointer"
+          className="w-full sm:w-auto p-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors flex justify-center items-center space-x-1 shadow-xs cursor-pointer"
           title="Refresh User List"
         >
           <RefreshCw className="h-4 w-4" />
@@ -112,27 +112,27 @@ const AdminUsers = () => {
 
       {/* Messages */}
       {error && (
-        <div className="bg-red-55 border border-red-200 text-red-650 p-3 rounded-lg flex items-start space-x-2 text-xs">
+        <div className="bg-red-950/30 border border-red-900 text-red-400 p-3 rounded-lg flex items-start space-x-2 text-xs">
           <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="bg-emerald-55 border border-emerald-200 text-emerald-650 p-3 rounded-lg flex items-start space-x-2 text-xs">
-          <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5 text-emerald-505" />
+        <div className="bg-emerald-950/30 border border-emerald-900 text-emerald-400 p-3 rounded-lg flex items-start space-x-2 text-xs">
+          <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5 text-emerald-400" />
           <span>{success}</span>
         </div>
       )}
 
       {/* Search Input */}
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
           <Search className="h-4 w-4" />
         </div>
         <input
           type="text"
-          className="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-4 py-2.5 text-slate-800 focus:outline-none focus:border-indigo-650 focus:bg-white text-sm transition-all shadow-xs"
+          className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-indigo-650 focus:bg-slate-900 text-sm transition-all shadow-xs placeholder-slate-500"
           placeholder="Search by name, email or linked card ID..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -140,10 +140,10 @@ const AdminUsers = () => {
       </div>
 
       {/* Users Table */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-800">
-            <thead className="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
+          <table className="w-full text-left text-sm text-slate-300">
+            <thead className="bg-slate-950 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
               <tr>
                 <th className="px-6 py-4">User Info</th>
                 <th className="px-6 py-4">Role</th>
@@ -152,17 +152,19 @@ const AdminUsers = () => {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-800">
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((u) => (
-                  <tr key={u._id} className="hover:bg-slate-50/50 transition-all">
+                  <tr key={u._id} className="hover:bg-slate-850/30 transition-all">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-slate-900">{u.name}</div>
-                      <div className="text-xs text-slate-500">{u.email}</div>
+                      <div className="font-bold text-white text-sm">{u.name}</div>
+                      <div className="text-xs text-slate-400 mt-0.5">{u.email}</div>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase ${
-                        u.role === 'admin' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-slate-50 text-slate-500 border border-slate-200'
+                        u.role === 'admin' 
+                          ? 'bg-indigo-950/40 text-indigo-400 border border-indigo-900/30' 
+                          : 'bg-slate-950 text-slate-400 border border-slate-850'
                       }`}>
                         {u.role}
                       </span>
@@ -170,28 +172,28 @@ const AdminUsers = () => {
                     <td className="px-6 py-4">
                       {u.cardId ? (
                         <div className="flex items-center space-x-1.5">
-                          <span className="font-mono text-xs text-indigo-600 font-bold">{u.cardId}</span>
+                          <span className="font-mono text-xs text-indigo-400 font-bold">{u.cardId}</span>
                           <span className={`h-1.5 w-1.5 rounded-full ${u.cardStatus === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-400 font-medium">No card linked</span>
+                        <span className="text-xs text-slate-500 font-medium">No card linked</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-500">
+                    <td className="px-6 py-4 text-xs text-slate-400">
                       {new Date(u.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
                       <button
                         onClick={() => handleToggleRole(u._id, u.role)}
                         disabled={actionLoading}
-                        className="text-xs text-indigo-600 hover:text-indigo-850 font-bold transition-colors disabled:opacity-50 cursor-pointer"
+                        className="text-xs text-indigo-400 hover:text-indigo-300 font-bold transition-colors disabled:opacity-50 cursor-pointer"
                       >
                         {u.role === 'admin' ? 'Demote' : 'Promote'}
                       </button>
                       <button
                         onClick={() => handleDeleteUser(u._id)}
                         disabled={actionLoading}
-                        className="text-red-655 hover:text-red-700 p-1.5 rounded bg-red-50 border border-red-200 hover:bg-red-100 transition-all inline-flex items-center disabled:opacity-50 shadow-xs cursor-pointer"
+                        className="text-red-400 hover:text-red-300 p-1.5 rounded bg-red-950/20 border border-red-900/30 hover:bg-red-900/30 transition-all inline-flex items-center disabled:opacity-50 shadow-xs cursor-pointer"
                         title="Delete User Account"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -201,7 +203,7 @@ const AdminUsers = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="px-6 py-10 text-center text-slate-400 font-medium">
+                  <td colSpan="5" className="px-6 py-10 text-center text-slate-500 font-medium">
                     No users found matching your search query.
                   </td>
                 </tr>
