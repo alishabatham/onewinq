@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../context/AuthContext';
+import { useSearchParams } from 'react-router-dom';
 import { 
   CreditCard, ToggleLeft, ToggleRight, Copy, Check, QrCode, LogOut, RefreshCw, AlertCircle, CheckCircle2
 } from 'lucide-react';
@@ -16,9 +17,19 @@ const MyCard = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const [searchParams] = useSearchParams();
+
   useEffect(() => {
     fetchCard();
-  }, []);
+    const claim = searchParams.get('claim');
+    if (claim) {
+      setCardIdInput(claim);
+      setSuccess(`Ready to claim card: ${claim}. Click Link Smart Card to activate.`);
+    }
+    if (searchParams.get('success') === 'true') {
+      setSuccess('Your card was successfully activated!');
+    }
+  }, [searchParams]);
 
   const fetchCard = async () => {
     try {
@@ -274,12 +285,12 @@ const MyCard = () => {
                 type="text"
                 required
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-850 focus:outline-none focus:border-indigo-650 focus:bg-white text-sm transition-all font-mono"
-                placeholder="WINQ-XXXXXX (or any code for testing)"
+                placeholder="WINQ-XXXXXX"
                 value={cardIdInput}
                 onChange={(e) => setCardIdInput(e.target.value)}
               />
               <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">
-                Tip: If you are testing, you can input *any* random string code (e.g. "WINQ-TEST"). The server will automatically register and link it for you!
+                Enter the unique Card ID printed on your physical OneWinq card.
               </p>
             </div>
 

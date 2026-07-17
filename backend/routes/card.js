@@ -150,7 +150,12 @@ router.get('/public/:cardId', async (req, res) => {
     }
 
     if (!card.user) {
-      return res.status(400).json({ success: false, message: 'Card is not linked to any user yet' });
+      return res.json({
+        success: true,
+        linked: false,
+        cardId: card.cardId,
+        message: 'This OneWinq card has not been activated yet.'
+      });
     }
 
     // Get owner profile
@@ -174,6 +179,7 @@ router.get('/public/:cardId', async (req, res) => {
 
     res.json({
       success: true,
+      linked: true,
       profile,
       cardStatus: card.status,
     });

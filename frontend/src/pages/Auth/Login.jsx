@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Lock, Mail, AlertCircle, RefreshCw } from 'lucide-react';
 import Logo from '../../components/Logo';
 
 const Login = () => {
   const { login, user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,9 +15,14 @@ const Login = () => {
 
   React.useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      const claim = searchParams.get('claim');
+      if (claim) {
+        navigate(`/dashboard/mycard?claim=${claim}`);
+      } else {
+        navigate('/dashboard');
+      }
     }
-  }, [user, navigate]);
+  }, [user, navigate, searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +32,12 @@ const Login = () => {
     try {
       const result = await login(email, password);
       if (result.success) {
-        navigate('/dashboard');
+        const claim = searchParams.get('claim');
+        if (claim) {
+          navigate(`/dashboard/mycard?claim=${claim}`);
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         setError(result.message);
       }
@@ -204,7 +215,7 @@ const Login = () => {
 
           <p className="mt-8 text-center text-xs text-slate-550 font-medium">
             Don't have an account?{' '}
-            <Link to="/signup" className="font-semibold text-brand hover:opacity-90 transition-colors">
+            <Link to={searchParams.get('claim') ? `/signup?claim=${searchParams.get('claim')}` : "/signup"} className="font-semibold text-brand hover:opacity-90 transition-colors">
               Sign up
             </Link>
           </p>
