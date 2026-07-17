@@ -125,6 +125,98 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Vision Storytelling Section */}
+      <section className="py-24 bg-slate-950 text-white relative overflow-hidden">
+        {/* Glow effect */}
+        <div className="absolute top-0 right-10 w-[400px] h-[400px] bg-brand/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-10 w-[300px] h-[300px] bg-violet-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            
+            {/* Left Column: The Narrative Story */}
+            <div className="lg:col-span-7 text-left space-y-6">
+              <div className="inline-flex items-center space-x-2 bg-brand/10 border border-brand/20 px-3.5 py-1.5 rounded-full text-brand text-xs font-bold uppercase tracking-wider">
+                <span>The Vision</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight font-outfit">
+                Making the Invisible,<br />
+                <span className="bg-gradient-to-r from-brand to-violet-400 bg-clip-text text-transparent">Visible.</span>
+              </h2>
+              
+              <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed font-light">
+                <p>
+                  Imagine a busy city square where hundreds of people are crossing paths every day. Every individual has a unique story, skills, achievements, passions, and aspirations—but all of it remains invisible to the people around them.
+                </p>
+                <p className="border-l-2 border-brand/50 pl-4 italic text-slate-200">
+                  With OneWinq, your digital identity becomes instantly accessible. As people meet, their complete professional and personal presence appears seamlessly, transforming a simple introduction into a meaningful connection.
+                </p>
+                <p>
+                  It's not about exchanging business cards or social media links; it's about making every first interaction more personal, more memorable, and more connected.
+                </p>
+              </div>
+            </div>
+
+            {/* Right Column: Interactive Human Connections Grid */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative w-full max-w-[440px] aspect-square bg-slate-900/50 border border-slate-800 rounded-[2.5rem] p-8 flex flex-col justify-between overflow-hidden shadow-2xl">
+                
+                {/* Decorative background grid pattern */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30 pointer-events-none"></div>
+
+                <div className="space-y-2 relative z-10">
+                  <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">City Square Simulation</span>
+                  <h4 className="font-bold text-slate-200 text-sm">Visualizing Hidden Potential</h4>
+                </div>
+
+                {/* Abstract Interactive Nodes */}
+                <div className="grid grid-cols-4 gap-6 my-auto relative z-10 py-4">
+                  {/* Node 1: Glowing */}
+                  <div className="flex flex-col items-center space-y-2 group">
+                    <div className="h-14 w-14 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center transition-all duration-300 relative group-hover:border-brand group-hover:scale-105">
+                      <span className="text-xs font-bold text-slate-400 group-hover:text-white">JD</span>
+                      <div className="absolute -inset-1 rounded-full border border-brand/40 animate-ping opacity-0 group-hover:opacity-100"></div>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-500 group-hover:text-brand transition-colors">Designer</span>
+                  </div>
+
+                  {/* Node 2: Inactive/Invisible */}
+                  <div className="flex flex-col items-center space-y-2 opacity-45 hover:opacity-100 transition-opacity duration-300 group">
+                    <div className="h-14 w-14 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center transition-all group-hover:border-violet-400 group-hover:scale-105">
+                      <span className="text-xs font-bold text-slate-500 group-hover:text-white">MK</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-500 group-hover:text-violet-400 transition-colors">Writer</span>
+                  </div>
+
+                  {/* Node 3: Active/Glow (Simulated) */}
+                  <div className="flex flex-col items-center space-y-2 group">
+                    <div className="h-14 w-14 rounded-full bg-brand/10 border-2 border-brand flex items-center justify-center relative shadow-lg shadow-brand/20">
+                      <span className="text-xs font-bold text-white">SK</span>
+                      <div className="absolute -inset-1 rounded-full border border-brand/50 animate-pulse"></div>
+                    </div>
+                    <span className="text-[10px] font-bold text-brand">Founder</span>
+                  </div>
+
+                  {/* Node 4: Inactive */}
+                  <div className="flex flex-col items-center space-y-2 opacity-45 hover:opacity-100 transition-opacity duration-300 group">
+                    <div className="h-14 w-14 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center transition-all group-hover:border-emerald-400 group-hover:scale-105">
+                      <span className="text-xs font-bold text-slate-500 group-hover:text-white">AR</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-500 group-hover:text-emerald-400 transition-colors">Dev</span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-slate-500 leading-relaxed text-center relative z-10">
+                  Hover over the inactive profiles to reveal their hidden identities.
+                </p>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* Philosophy Section: Feelings over Features */}
       <section className="py-24 bg-white border-y border-slate-150 relative">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
