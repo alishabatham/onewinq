@@ -32,28 +32,37 @@ router.post('/link', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide a Card ID' });
     }
 
-    // Check if card is already linked to someone else
+    // Check if card exists
     let card = await Card.findOne({ cardId });
-
-    if (card) {
-      if (card.user) {
-        if (card.user.toString() === req.user._id.toString()) {
-          return res.status(400).json({ success: false, message: 'This card is already linked to your account' });
-        } else {
-          return res.status(400).json({ success: false, message: 'This card is already linked to another user' });
-        }
-      }
-      
-      // Link existing unlinked card
-      card.user = req.user._id;
-      card.status = 'active';
-      await card.save();
-    } else {
+    if (!card) {
       return res.status(404).json({
         success: false,
         message: 'Invalid Card ID. This card code has not been pre-registered by the admin.',
       });
     }
+
+    // Check if this card is already linked
+    if (card.user) {
+      if (card.user.toString() === req.user._id.toString()) {
+        return res.status(400).json({ success: false, message: 'This card is already linked to your account' });
+      } else {
+        return res.status(400).json({ success: false, message: 'This card is already linked to another user' });
+      }
+    }
+
+    // Check if the current user already has another card linked
+    const existingUserCard = await Card.findOne({ user: req.user._id });
+    if (existingUserCard) {
+      return res.status(400).json({
+        success: false,
+        message: `You already have an active card (${existingUserCard.cardId}) linked to your account. Please unlink it first.`,
+      });
+    }
+    
+    // Link existing unlinked card
+    card.user = req.user._id;
+    card.status = 'active';
+    await card.save();
 
     // Update Analytics document to reference this card
     let analytics = await Analytics.findOne({ user: req.user._id });

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../context/AuthContext';
 import { 
-  CreditCard, Plus, HelpCircle, Link2Off, RefreshCw, AlertCircle, CheckCircle2
+  CreditCard, Plus, HelpCircle, Link2Off, RefreshCw, AlertCircle, CheckCircle2, Copy, ExternalLink
 } from 'lucide-react';
 
 const AdminCards = () => {
@@ -12,6 +12,16 @@ const AdminCards = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [recentlyGenerated, setRecentlyGenerated] = useState([]);
+  const [copiedCardId, setCopiedCardId] = useState(null);
+
+  const handleCopy = (text, id) => {
+    navigator.clipboard.writeText(text);
+    setCopiedCardId(id);
+    setTimeout(() => {
+      setCopiedCardId(null);
+    }, 2000);
+  };
 
   useEffect(() => {
     fetchCards();
@@ -46,6 +56,9 @@ const AdminCards = () => {
       const res = await axios.post(`${API_URL}/admin/cards/generate`, { count: generateCount });
       if (res.data.success) {
         setSuccess(res.data.message);
+        if (res.data.cards) {
+          setRecentlyGenerated(res.data.cards);
+        }
         fetchCards();
       }
     } catch (err) {
@@ -133,6 +146,7 @@ const AdminCards = () => {
                     <th className="px-6 py-4">Card ID</th>
                     <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4">Owner Account</th>
+                    <th className="px-6 py-4">Card URL / Activation Link</th>
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -167,6 +181,33 @@ const AdminCards = () => {
                             </span>
                           )}
                         </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-mono text-xs text-slate-400 select-all max-w-[220px] truncate" title={`${window.location.origin}/c/${c.cardId}`}>
+                              {`${window.location.origin}/c/${c.cardId}`}
+                            </span>
+                            <button
+                              onClick={() => handleCopy(`${window.location.origin}/c/${c.cardId}`, c.cardId)}
+                              className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors cursor-pointer"
+                              title="Copy URL"
+                            >
+                              {copiedCardId === c.cardId ? (
+                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                              ) : (
+                                <Copy className="h-3.5 w-3.5" />
+                              )}
+                            </button>
+                            <a
+                              href={`/c/${c.cardId}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
+                              title="Open URL"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          </div>
+                        </td>
                         <td className="px-6 py-4 text-right">
                           {c.user && (
                             <button
@@ -183,7 +224,7 @@ const AdminCards = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="px-6 py-10 text-center text-slate-500 font-medium">
+                      <td colSpan="5" className="px-6 py-10 text-center text-slate-500 font-medium">
                         No cards registered in the system database yet.
                       </td>
                     </tr>
@@ -195,7 +236,7 @@ const AdminCards = () => {
         </div>
 
         {/* Right Side: Generate Cards Panel */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 space-y-6">
           <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-6 shadow-xs">
             <div className="flex items-center space-x-3">
               <div className="bg-indigo-950/40 text-indigo-400 p-2.5 rounded-lg border border-indigo-900/30">
@@ -232,6 +273,77 @@ const AdminCards = () => {
               </button>
             </form>
           </div>
+
+          {/* Recently Generated Cards Section */}
+          {recentlyGenerated.length > 0 && (
+            <div className="bg-slate-900 p-6 rounded-2xl border border-indigo-950/40 space-y-4 shadow-md relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-indigo-600"></div>
+              <div className="flex justify-between items-center">
+                <h4 className="font-bold text-white text-xs uppercase tracking-wider">Recently Generated</h4>
+                <button 
+                  onClick={() => {
+                    const allUrls = recentlyGenerated.map(c => `${window.location.origin}/c/${c.cardId}`).join('\n');
+                    handleCopy(allUrls, 'all-generated');
+                  }}
+                  className="text-[10px] bg-indigo-950 hover:bg-indigo-900 border border-indigo-900 text-indigo-300 font-bold px-2.5 py-1 rounded transition-all cursor-pointer flex items-center space-x-1"
+                >
+                  {copiedCardId === 'all-generated' ? (
+                    <>
+                      <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                      <span>Copied All!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" />
+                      <span>Copy All URLs</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              
+              <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
+                {recentlyGenerated.map((c) => {
+                  const url = `${window.location.origin}/c/${c.cardId}`;
+                  return (
+                    <div key={c._id} className="bg-slate-950 p-2.5 rounded-lg border border-slate-850 flex flex-col space-y-1 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="font-mono font-bold text-indigo-400 text-[11px]">{c.cardId}</span>
+                        <div className="flex items-center space-x-1.5">
+                          <button
+                            onClick={() => handleCopy(url, c._id)}
+                            className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors cursor-pointer"
+                            title="Copy URL"
+                          >
+                            {copiedCardId === c._id ? (
+                              <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </button>
+                          <a
+                            href={`/c/${c.cardId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
+                            title="Open URL"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </div>
+                      </div>
+                      <div className="font-mono text-[10px] text-slate-500 truncate select-all">{url}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <button 
+                onClick={() => setRecentlyGenerated([])}
+                className="w-full text-center text-[10px] text-slate-500 hover:text-slate-300 transition-colors pt-2 border-t border-slate-850 block cursor-pointer"
+              >
+                Clear List
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
