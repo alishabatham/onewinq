@@ -29,7 +29,7 @@ const Navbar = () => {
           {/* Logo & Main Nav Links */}
           <div className="flex items-center space-x-10">
             <Link to="/" className="flex items-center">
-              <Logo className="h-9" />
+              <Logo className="h-10 sm:h-12" />
             </Link>
             
             <div className="hidden md:flex items-center space-x-7">

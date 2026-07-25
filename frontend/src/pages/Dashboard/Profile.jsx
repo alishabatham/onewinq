@@ -5,7 +5,7 @@ import { TEMPLATES } from '../../data/templatesData';
 import TemplateCardRenderer from '../../components/TemplateCardRenderer';
 import { 
   User, Link2, Building2, Upload, AlertCircle, CheckCircle2, RefreshCw, FileText, Layout, Sparkles, Eye, Check, Lock,
-  Gem, Wand2, BarChart2, Globe, Shield, Ban, ArrowRight
+  Gem, Wand2, BarChart2, Globe, Shield, Ban, ArrowRight, Zap, Briefcase, Award, Plus, Trash2
 } from 'lucide-react';
 
 const Profile = () => {
@@ -100,25 +100,16 @@ const Profile = () => {
           website: p.website || '',
           whatsApp: p.whatsApp || '',
           address: p.address || '',
-          meetingLink: p.meetingLink || '',
-          videoUrl: p.videoUrl || '',
           profilePhoto: p.profilePhoto || '',
           templateId: p.templateId || 'nova',
           customUsername: p.customUsername || '',
-          tagline: p.tagline || '',
-          vision: p.vision || '',
-          techStack: Array.isArray(p.techStack) ? p.techStack.join(', ') : (p.techStack || ''),
-          experience: p.experience || '2+ Years',
-          skillsCount: p.skillsCount || '12+ Skills',
-          projectsCount: p.projectsCount || '6+ Projects',
-          education: p.education || 'B.Tech CSE',
-          resume: p.resume || '',
-          whatIDo: p.whatIDo || '',
-          roles: p.roles || '',
-          conversationStarters: p.conversationStarters || '',
-          currently: p.currently || '',
-          lookingFor: p.lookingFor || '',
-          availability: p.availability || 'Open for Opportunities',
+          experience: p.experience || '',
+          experienceLabel: p.experienceLabel || '',
+          companiesBuilt: p.companiesBuilt || '',
+          companiesLabel: p.companiesLabel || '',
+          connectionsCount: p.connectionsCount || '',
+          connectionsLabel: p.connectionsLabel || '',
+          skillsInput: Array.isArray(p.skills) ? p.skills.join(', ') : '',
           socialLinks: {
             linkedIn: p.socialLinks?.linkedIn || '',
             instagram: p.socialLinks?.instagram || '',
@@ -132,13 +123,10 @@ const Profile = () => {
             website: p.company?.website || '',
             brochure: p.company?.brochure || '',
           },
-          featuredWork: (p.featuredWork && p.featuredWork.length >= 3)
-            ? p.featuredWork
-            : [
-                { title: p.featuredWork?.[0]?.title || '', tag: p.featuredWork?.[0]?.tag || '', description: p.featuredWork?.[0]?.description || '', image: p.featuredWork?.[0]?.image || '', link: p.featuredWork?.[0]?.link || '' },
-                { title: p.featuredWork?.[1]?.title || '', tag: p.featuredWork?.[1]?.tag || '', description: p.featuredWork?.[1]?.description || '', image: p.featuredWork?.[1]?.image || '', link: p.featuredWork?.[1]?.link || '' },
-                { title: p.featuredWork?.[2]?.title || '', tag: p.featuredWork?.[2]?.tag || '', description: p.featuredWork?.[2]?.description || '', image: p.featuredWork?.[2]?.image || '', link: p.featuredWork?.[2]?.link || '' },
-              ],
+          services: Array.isArray(p.services) ? p.services : [],
+          featuredWork: Array.isArray(p.featuredWork) ? p.featuredWork : [],
+          experienceTimeline: Array.isArray(p.experienceTimeline) ? p.experienceTimeline : [],
+          achievements: Array.isArray(p.achievements) ? p.achievements : [],
         });
       }
     } catch (err) {
@@ -199,7 +187,17 @@ const Profile = () => {
     setSaving(true);
 
     try {
-      const res = await axios.put(`${API_URL}/profile/me`, form);
+      const skillsArray = (form.skillsInput || '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const payload = {
+        ...form,
+        skills: skillsArray,
+      };
+
+      const res = await axios.put(`${API_URL}/profile/me`, payload);
       if (res.data.success) {
         setSuccess(true);
         // Scroll to top to see success alert
@@ -268,8 +266,9 @@ const Profile = () => {
       {/* Tabs */}
       <div className="flex border-b border-slate-200 overflow-x-auto space-x-1 scrollbar-none -mx-1 px-1">
         <button
+          type="button"
           onClick={() => setActiveTab('basic')}
-          className={`flex items-center space-x-2 px-5 py-3 border-b-2 font-medium text-sm shrink-0 transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-4 py-3 border-b-2 font-medium text-xs sm:text-sm shrink-0 transition-all cursor-pointer ${
             activeTab === 'basic' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
           }`}
         >
@@ -279,7 +278,7 @@ const Profile = () => {
         <button
           type="button"
           onClick={() => setActiveTab('social')}
-          className={`flex items-center space-x-2 px-5 py-3 border-b-2 font-medium text-sm shrink-0 transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-4 py-3 border-b-2 font-medium text-xs sm:text-sm shrink-0 transition-all cursor-pointer ${
             activeTab === 'social' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
           }`}
         >
@@ -288,17 +287,38 @@ const Profile = () => {
         </button>
         <button
           type="button"
+          onClick={() => setActiveTab('services')}
+          className={`flex items-center space-x-2 px-4 py-3 border-b-2 font-medium text-xs sm:text-sm shrink-0 transition-all cursor-pointer ${
+            activeTab === 'services' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
+          }`}
+        >
+          <Zap className="h-4 w-4" />
+          <span>Services</span>
+        </button>
+        <button
+          type="button"
           onClick={() => setActiveTab('work')}
-          className={`flex items-center space-x-2 px-5 py-3 border-b-2 font-medium text-sm shrink-0 transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-4 py-3 border-b-2 font-medium text-xs sm:text-sm shrink-0 transition-all cursor-pointer ${
             activeTab === 'work' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
           }`}
         >
           <Sparkles className="h-4 w-4" />
-          <span>Featured Work & Images</span>
+          <span>Featured Work</span>
         </button>
         <button
+          type="button"
+          onClick={() => setActiveTab('timeline')}
+          className={`flex items-center space-x-2 px-4 py-3 border-b-2 font-medium text-xs sm:text-sm shrink-0 transition-all cursor-pointer ${
+            activeTab === 'timeline' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
+          }`}
+        >
+          <Briefcase className="h-4 w-4" />
+          <span>Experience & Achievements</span>
+        </button>
+        <button
+          type="button"
           onClick={() => setActiveTab('templates')}
-          className={`flex items-center space-x-2 px-5 py-3 border-b-2 font-medium text-sm shrink-0 transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-4 py-3 border-b-2 font-medium text-xs sm:text-sm shrink-0 transition-all cursor-pointer ${
             activeTab === 'templates' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
           }`}
         >
@@ -456,6 +476,103 @@ const Profile = () => {
                 />
               </div>
 
+              {/* Stats & Metrics Highlights */}
+              <div className="sm:col-span-2 border-t border-slate-100 pt-5 mt-2 space-y-4">
+                <div>
+                  <h4 className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Digital Card Highlights & Metrics (Optional)</h4>
+                  <p className="text-xs text-slate-500 mt-1">Customize the 3 stat metrics displayed on your card (Value & Label). Leave blank if you do not want to show metrics.</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* Metric 1 */}
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <span className="text-[11px] font-bold text-indigo-600 block">Metric 1</span>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase">Value</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 5+"
+                        value={form.experience}
+                        onChange={(e) => setForm({ ...form, experience: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-slate-800 text-xs focus:outline-none focus:border-indigo-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase">Label</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Years of Experience"
+                        value={form.experienceLabel}
+                        onChange={(e) => setForm({ ...form, experienceLabel: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-slate-800 text-xs focus:outline-none focus:border-indigo-600"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Metric 2 */}
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <span className="text-[11px] font-bold text-indigo-600 block">Metric 2</span>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase">Value</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 10K+"
+                        value={form.connectionsCount}
+                        onChange={(e) => setForm({ ...form, connectionsCount: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-slate-800 text-xs focus:outline-none focus:border-indigo-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase">Label</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Connections Made"
+                        value={form.connectionsLabel}
+                        onChange={(e) => setForm({ ...form, connectionsLabel: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-slate-800 text-xs focus:outline-none focus:border-indigo-600"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Metric 3 */}
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <span className="text-[11px] font-bold text-indigo-600 block">Metric 3</span>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase">Value</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 25+"
+                        value={form.companiesBuilt}
+                        onChange={(e) => setForm({ ...form, companiesBuilt: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-slate-800 text-xs focus:outline-none focus:border-indigo-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase">Label</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Countries Reached"
+                        value={form.companiesLabel}
+                        onChange={(e) => setForm({ ...form, companiesLabel: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-slate-800 text-xs focus:outline-none focus:border-indigo-600"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Skills Input */}
+              <div className="sm:col-span-2 border-t border-slate-100 pt-5 mt-2">
+                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">Skills & Badges (Optional)</label>
+                <p className="text-xs text-slate-500 mb-2">Enter your skills separated by commas (e.g. UI/UX Design, React, Leadership). Leave blank if you don't want skills to show on your card.</p>
+                <input
+                  type="text"
+                  placeholder="UI/UX Design, React, Node.js, Public Speaking, Leadership"
+                  value={form.skillsInput}
+                  onChange={(e) => setForm({ ...form, skillsInput: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                />
+              </div>
+
 
             </div>
           </div>
@@ -541,103 +658,95 @@ const Profile = () => {
           </div>
         )}
 
-        {/* Tab 3: Company details */}
-        {activeTab === 'company' && (
+        {/* Tab: Services / What I Do */}
+        {activeTab === 'services' && (
           <div className="glass-panel p-6 sm:p-8 rounded-2xl space-y-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Company Profile & PDF Brochure</h3>
-
-            {/* Company Logo Uploader */}
-            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 pb-6 border-b border-slate-100">
-              <div className="relative group">
-                <div className="h-20 w-20 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
-                  {form.company.logo ? (
-                    <img src={form.company.logo} alt="Company Logo" className="h-full w-full object-contain p-1" />
-                  ) : (
-                    <Building2 className="h-8 w-8 text-slate-400" />
-                  )}
-                </div>
-                {uploadingLogo && (
-                  <div className="absolute inset-0 bg-slate-900/60 rounded-lg flex items-center justify-center">
-                    <RefreshCw className="h-5 w-5 text-white animate-spin" />
-                  </div>
-                )}
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                  <Zap className="h-5 w-5 text-indigo-600" />
+                  <span>Services & What I Do</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Add the core services or offerings you provide. Leave blank to hide this section on your card.
+                </p>
               </div>
-              <div className="text-center sm:text-left">
-                <label className="cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 px-4 py-2 rounded-lg text-sm font-semibold transition-all inline-flex items-center space-x-2">
-                  <Upload className="h-4 w-4 text-slate-500" />
-                  <span>{uploadingLogo ? 'Uploading...' : 'Upload Corporate Logo'}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => handleFileUpload(e, 'logo')}
-                    disabled={uploadingLogo}
-                  />
-                </label>
-                <p className="text-xs text-slate-500 mt-2">Recommended: Transparent PNG or JPEG logo.</p>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [...(form.services || []), { title: '', description: '' }];
+                  setForm({ ...form, services: updated });
+                }}
+                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer shrink-0"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add Service</span>
+              </button>
             </div>
 
-            {/* Company inputs */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Company Website</label>
-                <input
-                  type="url"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:border-indigo-650 focus:bg-white text-sm transition-all"
-                  placeholder="https://companywebsite.com"
-                  value={form.company.website}
-                  onChange={(e) => setForm({
-                    ...form,
-                    company: { ...form.company, website: e.target.value }
-                  })}
-                />
+            {(!form.services || form.services.length === 0) ? (
+              <div className="bg-slate-50 border border-dashed border-slate-200 p-8 rounded-2xl text-center space-y-2">
+                <Zap className="h-8 w-8 text-slate-400 mx-auto" />
+                <p className="text-sm font-semibold text-slate-700">No Services Added Yet</p>
+                <p className="text-xs text-slate-500">Click "Add Service" above to showcase what you do on your digital card.</p>
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Company Description</label>
-                <textarea
-                  rows="3"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:border-indigo-650 focus:bg-white text-sm transition-all"
-                  placeholder="Briefly describe what services or products your company provides..."
-                  value={form.company.description}
-                  onChange={(e) => setForm({
-                    ...form,
-                    company: { ...form.company, description: e.target.value }
-                  })}
-                ></textarea>
-              </div>
-
-              {/* Brochure File PDF Uploader */}
-              <div className="pt-4 border-t border-slate-100">
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Company Brochure (PDF)</label>
-                <div className="flex items-center space-x-4">
-                  <label className="cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all inline-flex items-center space-x-2 shrink-0">
-                    <FileText className="h-4 w-4 text-indigo-650" />
-                    <span>{uploadingBrochure ? 'Uploading Brochure...' : 'Select PDF Brochure'}</span>
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      className="hidden"
-                      onChange={(e) => handleFileUpload(e, 'brochure')}
-                      disabled={uploadingBrochure}
-                    />
-                  </label>
-                  
-                  {form.company.brochure && (
-                    <div className="flex items-center space-x-2 bg-indigo-50 border border-indigo-100 text-indigo-600 px-3 py-1.5 rounded-lg text-xs truncate max-w-sm">
-                      <CheckCircle2 className="h-4 w-4 shrink-0 text-indigo-500" />
-                      <a href={form.company.brochure} target="_blank" rel="noopener noreferrer" className="hover:underline truncate font-semibold">
-                        View Uploaded PDF Brochure
-                      </a>
+            ) : (
+              <div className="space-y-4">
+                {form.services.map((item, idx) => (
+                  <div key={idx} className="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-3 relative text-left">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                      <span className="text-xs font-bold text-indigo-600 uppercase">Service #{idx + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = form.services.filter((_, i) => i !== idx);
+                          setForm({ ...form, services: updated });
+                        }}
+                        className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors cursor-pointer"
+                        title="Remove Service"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
-                  )}
-                </div>
-                <p className="text-xs text-slate-500 mt-2">Upload your official PDF catalog. Max size 10MB.</p>
+
+                    <div className="grid grid-cols-1 gap-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Service Title</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Web Development, UI/UX Design, Consulting"
+                          value={item.title || ''}
+                          onChange={(e) => {
+                            const updated = [...form.services];
+                            updated[idx] = { ...updated[idx], title: e.target.value };
+                            setForm({ ...form, services: updated });
+                          }}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Description</label>
+                        <textarea
+                          rows="2"
+                          placeholder="Brief summary of what this service includes..."
+                          value={item.description || ''}
+                          onChange={(e) => {
+                            const updated = [...form.services];
+                            updated[idx] = { ...updated[idx], description: e.target.value };
+                            setForm({ ...form, services: updated });
+                          }}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
+            )}
           </div>
         )}
+
+
 
         {/* Tab 5: Featured Work & Project Images */}
         {activeTab === 'work' && (
@@ -781,6 +890,221 @@ const Profile = () => {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Experience & Achievements */}
+        {activeTab === 'timeline' && (
+          <div className="glass-panel p-6 sm:p-8 rounded-2xl space-y-8">
+            {/* Experience Timeline Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <Briefcase className="h-5 w-5 text-indigo-600" />
+                    <span>Work Experience Timeline</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Add your career history or roles. Leave blank to hide this section.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = [...(form.experienceTimeline || []), { period: '', role: '', company: '', desc: '' }];
+                    setForm({ ...form, experienceTimeline: updated });
+                  }}
+                  className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add Role</span>
+                </button>
+              </div>
+
+              {(!form.experienceTimeline || form.experienceTimeline.length === 0) ? (
+                <div className="bg-slate-50 border border-dashed border-slate-200 p-6 rounded-2xl text-center space-y-1">
+                  <p className="text-xs text-slate-500">No work experience entries added yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {form.experienceTimeline.map((item, idx) => (
+                    <div key={idx} className="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-3 relative text-left">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <span className="text-xs font-bold text-indigo-600 uppercase">Experience #{idx + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = form.experienceTimeline.filter((_, i) => i !== idx);
+                            setForm({ ...form, experienceTimeline: updated });
+                          }}
+                          className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors cursor-pointer"
+                          title="Remove Experience"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Time Period</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 2022 - Present"
+                            value={item.period || ''}
+                            onChange={(e) => {
+                              const updated = [...form.experienceTimeline];
+                              updated[idx] = { ...updated[idx], period: e.target.value };
+                              setForm({ ...form, experienceTimeline: updated });
+                            }}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Job Role / Title</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Founder & CEO"
+                            value={item.role || ''}
+                            onChange={(e) => {
+                              const updated = [...form.experienceTimeline];
+                              updated[idx] = { ...updated[idx], role: e.target.value };
+                              setForm({ ...form, experienceTimeline: updated });
+                            }}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Company / Organization</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. OneWinq Inc."
+                            value={item.company || ''}
+                            onChange={(e) => {
+                              const updated = [...form.experienceTimeline];
+                              updated[idx] = { ...updated[idx], company: e.target.value };
+                              setForm({ ...form, experienceTimeline: updated });
+                            }}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                          />
+                        </div>
+                        <div className="sm:col-span-3">
+                          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Description (Optional)</label>
+                          <input
+                            type="text"
+                            placeholder="Brief details about your key achievements in this role..."
+                            value={item.desc || ''}
+                            onChange={(e) => {
+                              const updated = [...form.experienceTimeline];
+                              updated[idx] = { ...updated[idx], desc: e.target.value };
+                              setForm({ ...form, experienceTimeline: updated });
+                            }}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Achievements Section */}
+            <div className="space-y-4 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <Award className="h-5 w-5 text-indigo-600" />
+                    <span>Achievements & Honors</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Add awards, honors, or key recognitions. Leave blank to hide this section.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = [...(form.achievements || []), { title: '', subtitle: '', year: '' }];
+                    setForm({ ...form, achievements: updated });
+                  }}
+                  className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add Achievement</span>
+                </button>
+              </div>
+
+              {(!form.achievements || form.achievements.length === 0) ? (
+                <div className="bg-slate-50 border border-dashed border-slate-200 p-6 rounded-2xl text-center space-y-1">
+                  <p className="text-xs text-slate-500">No achievements added yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {form.achievements.map((item, idx) => (
+                    <div key={idx} className="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-3 relative text-left">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <span className="text-xs font-bold text-indigo-600 uppercase">Achievement #{idx + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = form.achievements.filter((_, i) => i !== idx);
+                            setForm({ ...form, achievements: updated });
+                          }}
+                          className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors cursor-pointer"
+                          title="Remove Achievement"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Award / Title</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Top 30 Under 30"
+                            value={item.title || ''}
+                            onChange={(e) => {
+                              const updated = [...form.achievements];
+                              updated[idx] = { ...updated[idx], title: e.target.value };
+                              setForm({ ...form, achievements: updated });
+                            }}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Organization / Subtitle</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Tech Innovation Summit"
+                            value={item.subtitle || ''}
+                            onChange={(e) => {
+                              const updated = [...form.achievements];
+                              updated[idx] = { ...updated[idx], subtitle: e.target.value };
+                              setForm({ ...form, achievements: updated });
+                            }}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Year</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 2024"
+                            value={item.year || ''}
+                            onChange={(e) => {
+                              const updated = [...form.achievements];
+                              updated[idx] = { ...updated[idx], year: e.target.value };
+                              setForm({ ...form, achievements: updated });
+                            }}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -156,6 +156,14 @@ router.put('/me', protect, async (req, res) => {
     if (req.body.cardStyle !== undefined) profile.cardStyle = req.body.cardStyle;
     if (req.body.services !== undefined) profile.services = req.body.services;
     if (req.body.featuredWork !== undefined) profile.featuredWork = req.body.featuredWork;
+    if (req.body.experienceTimeline !== undefined) profile.experienceTimeline = req.body.experienceTimeline;
+    if (req.body.achievements !== undefined) profile.achievements = req.body.achievements;
+    if (req.body.companiesBuilt !== undefined) profile.companiesBuilt = req.body.companiesBuilt;
+    if (req.body.connectionsCount !== undefined) profile.connectionsCount = req.body.connectionsCount;
+    if (req.body.experienceLabel !== undefined) profile.experienceLabel = req.body.experienceLabel;
+    if (req.body.connectionsLabel !== undefined) profile.connectionsLabel = req.body.connectionsLabel;
+    if (req.body.companiesLabel !== undefined) profile.companiesLabel = req.body.companiesLabel;
+    if (req.body.skills !== undefined) profile.skills = req.body.skills;
 
     if (profilePhoto !== undefined) {
       profile.profilePhoto = profilePhoto;

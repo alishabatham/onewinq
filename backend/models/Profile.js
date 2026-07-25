@@ -165,6 +165,27 @@ const ProfileSchema = new mongoose.Schema({
     type: String,
     default: 'black_signature',
   },
+  experienceTimeline: [
+    {
+      period: { type: String, trim: true, default: '' },
+      role: { type: String, trim: true, default: '' },
+      company: { type: String, trim: true, default: '' },
+      desc: { type: String, trim: true, default: '' },
+    },
+  ],
+  achievements: [
+    {
+      title: { type: String, trim: true, default: '' },
+      subtitle: { type: String, trim: true, default: '' },
+      year: { type: String, trim: true, default: '' },
+    },
+  ],
+  companiesBuilt: { type: String, trim: true, default: '' },
+  connectionsCount: { type: String, trim: true, default: '' },
+  experienceLabel: { type: String, trim: true, default: '' },
+  connectionsLabel: { type: String, trim: true, default: '' },
+  companiesLabel: { type: String, trim: true, default: '' },
+  skills: [{ type: String, trim: true }],
   services: [
     {
       title: { type: String, trim: true },
