@@ -196,16 +196,16 @@ const TemplateCardRenderer = ({
           <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
             {!isInstalled && (
               <button
-                onClick={() => !isPreview && triggerInstall()}
+                onClick={() => !isPreview && triggerInstall({ name: profile.name, photo: profile.profilePhoto })}
                 className={`h-8 px-2.5 sm:px-3 rounded-xl flex items-center space-x-1.5 transition-all cursor-pointer text-xs font-semibold ${
                   isLightMode
                     ? 'bg-indigo-50 text-[#6344F5] border border-indigo-200 hover:bg-indigo-100'
                     : 'bg-[#151938] text-indigo-300 border border-indigo-500/30 hover:bg-[#1e234c] shadow-sm'
                 }`}
-                title="Download App Icon to Phone Home Screen"
+                title="Save Card to Phone Home Screen"
               >
                 <Smartphone className="h-3.5 w-3.5 text-[#863BFF]" />
-                <span className="hidden xs:inline">App Icon</span>
+                <span className="inline">Add Card to Phone</span>
               </button>
             )}
 

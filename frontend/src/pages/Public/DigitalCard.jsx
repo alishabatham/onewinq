@@ -28,23 +28,22 @@ const DigitalCard = () => {
   useEffect(() => {
     if (profile) {
       const profileName = profile.name || 'Digital Card';
-      // Set page title to profile name
-      document.title = `${profileName} | OneWinq`;
+      const profilePhoto = profile.profilePhoto || '/pwa-192.png';
+      const currentPath = window.location.pathname;
 
-      // Set Apple Touch Icon to profile photo (for home screen bookmark icon)
+      // 1. Set page title to profile name
+      document.title = `${profileName} | Digital Card`;
+
+      // 2. Set Apple Touch Icon to profile photo (for home screen bookmark icon)
       let appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
       if (!appleIcon) {
         appleIcon = document.createElement('link');
         appleIcon.rel = 'apple-touch-icon';
         document.head.appendChild(appleIcon);
       }
-      if (profile.profilePhoto) {
-        appleIcon.href = profile.profilePhoto;
-      } else {
-        appleIcon.href = '/favicon.svg';
-      }
+      appleIcon.href = profilePhoto;
 
-      // Set mobile web app title
+      // 3. Set iOS Mobile Web App Title
       let metaAppTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
       if (!metaAppTitle) {
         metaAppTitle = document.createElement('meta');
@@ -52,6 +51,43 @@ const DigitalCard = () => {
         document.head.appendChild(metaAppTitle);
       }
       metaAppTitle.content = profileName;
+
+      // 4. Update dynamic PWA manifest so mobile home screen saves with exact person name and photo
+      const manifestData = {
+        name: profileName,
+        short_name: profileName,
+        description: `Digital Business Card of ${profileName}`,
+        start_url: currentPath,
+        display: 'standalone',
+        background_color: '#090b15',
+        theme_color: '#6344F5',
+        orientation: 'portrait',
+        icons: [
+          {
+            src: profilePhoto,
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: profilePhoto,
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      };
+
+      const manifestDataUrl = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestData));
+      let manifestLink = document.querySelector('link[rel="manifest"]');
+      if (manifestLink) {
+        manifestLink.setAttribute('href', manifestDataUrl);
+      } else {
+        manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = manifestDataUrl;
+        document.head.appendChild(manifestLink);
+      }
     }
   }, [profile]);
 

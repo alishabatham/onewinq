@@ -10,6 +10,8 @@ export const PWAProvider = ({ children }) => {
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
 
+  const [cardOwner, setCardOwner] = useState(null);
+
   useEffect(() => {
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
@@ -59,9 +61,12 @@ export const PWAProvider = ({ children }) => {
     };
   }, []);
 
-  const triggerInstall = async () => {
+  const triggerInstall = async (ownerInfo = null) => {
+    if (ownerInfo) {
+      setCardOwner(ownerInfo);
+    }
     if (isInstalled) {
-      alert('OneWinq App is already installed on your home screen!');
+      alert(`${ownerInfo?.name || 'OneWinq Card'} is already added to your home screen!`);
       return;
     }
 
@@ -89,7 +94,10 @@ export const PWAProvider = ({ children }) => {
         isInstalled,
         isIOS,
         triggerInstall,
-        openInstallModal: () => setShowInstallModal(true),
+        openInstallModal: (ownerInfo = null) => {
+          if (ownerInfo) setCardOwner(ownerInfo);
+          setShowInstallModal(true);
+        },
         closeInstallModal: () => setShowInstallModal(false)
       }}
     >
@@ -110,15 +118,23 @@ export const PWAProvider = ({ children }) => {
 
             {/* Header Icon */}
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#6344F5] to-[#863BFF] flex items-center justify-center text-white shadow-lg shadow-[#6344F5]/30">
-                <Smartphone className="h-6 w-6" />
-              </div>
+              {cardOwner?.photo ? (
+                <img
+                  src={cardOwner.photo}
+                  alt={cardOwner.name}
+                  className="w-12 h-12 rounded-2xl object-cover border border-indigo-200 shadow-md shrink-0"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#6344F5] to-[#863BFF] flex items-center justify-center text-white shadow-lg shadow-[#6344F5]/30 shrink-0">
+                  <Smartphone className="h-6 w-6" />
+                </div>
+              )}
               <div>
                 <h3 className="text-lg font-bold text-slate-900 leading-tight">
-                  Download to Home Screen
+                  {cardOwner?.name ? `Save ${cardOwner.name}'s Card to Phone` : 'Download to Home Screen'}
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  Install app icon on phone without App Store
+                  {cardOwner?.name ? `Add ${cardOwner.name}'s card icon to your phone home screen` : 'Install app icon on phone without App Store'}
                 </p>
               </div>
             </div>
@@ -127,7 +143,7 @@ export const PWAProvider = ({ children }) => {
             {isIOS ? (
               <div className="space-y-4 py-2">
                 <p className="text-xs text-slate-600 font-medium">
-                  Follow these 3 quick steps to add OneWinq icon to your iPhone home screen:
+                  Follow these 3 quick steps to add <strong>{cardOwner?.name || 'this card'}</strong> to your iPhone home screen:
                 </p>
                 <div className="bg-slate-50 rounded-2xl p-4 space-y-3 border border-slate-100">
                   <div className="flex items-center space-x-3 text-xs font-semibold text-slate-700">
@@ -145,7 +161,7 @@ export const PWAProvider = ({ children }) => {
                   <div className="flex items-center space-x-3 text-xs font-semibold text-slate-700">
                     <span className="w-6 h-6 rounded-full bg-[#6344F5] text-white flex items-center justify-center font-bold text-xs shrink-0">3</span>
                     <span>
-                      Tap <strong>Add</strong> at top right. Your App Icon is ready! 📱
+                      Name will save as <strong>"{cardOwner?.name || 'Digital Card'}"</strong>. Tap <strong>Add</strong> at top right! 📱
                     </span>
                   </div>
                 </div>
@@ -153,16 +169,16 @@ export const PWAProvider = ({ children }) => {
             ) : (
               <div className="space-y-4 py-2">
                 <p className="text-xs text-slate-600 font-medium">
-                  Click the install button below or follow your browser's menu to add OneWinq as an icon on your home screen.
+                  Add <strong>{cardOwner?.name || 'this card'}</strong> directly to your mobile home screen for 1-tap instant access:
                 </p>
                 <div className="bg-slate-50 rounded-2xl p-4 space-y-3 border border-slate-100 text-xs text-slate-700 font-medium">
                   <div className="flex items-center space-x-3">
                     <div className="w-2.5 h-2.5 rounded-full bg-[#6344F5] shrink-0"></div>
-                    <span>Instant 1-tap access from phone home screen</span>
+                    <span>Saves with <strong>{cardOwner?.name || 'Person Name'}</strong> as shortcut title</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-2.5 h-2.5 rounded-full bg-[#6344F5] shrink-0"></div>
-                    <span>Runs like a native mobile app (PWA)</span>
+                    <span>Opens directly to this digital card profile</span>
                   </div>
                 </div>
               </div>
@@ -172,11 +188,11 @@ export const PWAProvider = ({ children }) => {
             <div className="mt-5 flex items-center justify-end space-x-3">
               {deferredPrompt ? (
                 <button
-                  onClick={triggerInstall}
+                  onClick={() => triggerInstall(cardOwner)}
                   className="w-full bg-[#6344F5] hover:bg-[#5233E0] text-white py-3 px-5 rounded-xl font-semibold text-sm shadow-md shadow-[#6344F5]/30 flex items-center justify-center space-x-2 transition-all cursor-pointer"
                 >
                   <Download className="h-4 w-4" />
-                  <span>Download App Icon Now</span>
+                  <span>Save {cardOwner?.name ? `${cardOwner.name}'s Card` : 'App Icon'} Now</span>
                 </button>
               ) : (
                 <button
