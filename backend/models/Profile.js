@@ -72,6 +72,115 @@ const ProfileSchema = new mongoose.Schema({
     website: { type: String, default: '' },
     brochure: { type: String, default: '' }, // URL to PDF
   },
+  // Template & Customization
+  templateId: {
+    type: String,
+    default: 'nova',
+  },
+  customUsername: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  tagline: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  vision: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  techStack: [{ type: String }],
+  // Highlights Card Fields (Experience, Skills, Projects, Education, Resume)
+  experience: {
+    type: String,
+    trim: true,
+    default: '2+ Years',
+  },
+  skillsCount: {
+    type: String,
+    trim: true,
+    default: '12+ Skills',
+  },
+  projectsCount: {
+    type: String,
+    trim: true,
+    default: '6+ Projects',
+  },
+  education: {
+    type: String,
+    trim: true,
+    default: 'B.Tech CSE',
+  },
+  resume: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  // Identity Platform Layers (Who I Am, What I Do, Roles, Conversation Starters, Currently, Looking For, Availability)
+  whatIDo: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  roles: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  conversationStarters: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  currently: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  lookingFor: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  availability: {
+    type: String,
+    trim: true,
+    default: 'Open for Opportunities',
+  },
+  // Extended Digital Identity & Let's Connect Fields
+  meetingLink: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  videoUrl: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  cardStyle: {
+    type: String,
+    default: 'black_signature',
+  },
+  services: [
+    {
+      title: { type: String, trim: true },
+      description: { type: String, trim: true },
+      icon: { type: String, default: 'Zap' },
+    },
+  ],
+  featuredWork: [
+    {
+      title: { type: String, trim: true, default: '' },
+      tag: { type: String, trim: true, default: '' },
+      description: { type: String, trim: true, default: '' },
+      image: { type: String, trim: true, default: '' },
+      link: { type: String, trim: true, default: '' },
+    },
+  ],
   updatedAt: {
     type: Date,
     default: Date.now,

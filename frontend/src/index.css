@@ -10,10 +10,22 @@
   body {
     background-color: #f8fafc; /* slate-50 */
     color: #0f172a; /* slate-900 */
-    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
+
+.font-inter {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', Georgia, serif !important;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif !important;
 }
 
 /* Custom Scrollbar for sleek premium look */

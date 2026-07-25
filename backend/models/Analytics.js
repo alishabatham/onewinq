@@ -20,9 +20,33 @@ const AnalyticsSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  uniqueVisitors: {
+    type: Number,
+    default: 0,
+  },
+  leadsGenerated: {
+    type: Number,
+    default: 0,
+  },
   lastVisit: {
     type: Date,
     default: null,
+  },
+  recentActivity: [
+    {
+      visitorName: { type: String, default: 'Anonymous Visitor' },
+      action: { type: String, default: 'Viewed profile' },
+      location: { type: String, default: 'India' },
+      timestamp: { type: Date, default: Date.now },
+    },
+  ],
+  topActions: {
+    whatsApp: { type: Number, default: 0 },
+    call: { type: Number, default: 0 },
+    email: { type: Number, default: 0 },
+    website: { type: Number, default: 0 },
+    brochure: { type: Number, default: 0 },
+    meeting: { type: Number, default: 0 },
   },
 });
 

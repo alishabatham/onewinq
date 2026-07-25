@@ -1,10 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { PWAProvider } from './context/PWAContext';
 
 // Landing Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 
 // Landing Pages
 import Home from './pages/Landing/Home';
@@ -69,61 +71,64 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Landing site routes */}
-          <Route element={<LandingLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/features" element={<Features />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/contact" element={<Contact />} />
-          </Route>
+    <PWAProvider>
+      <AuthProvider>
+        <Router>
+          <ScrollToTop />
+          <Routes>
+            {/* Landing site routes */}
+            <Route element={<LandingLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/contact" element={<Contact />} />
+            </Route>
 
-          {/* Auth routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgotpassword" element={<ForgotPassword />} />
+            {/* Auth routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgotpassword" element={<ForgotPassword />} />
 
-          {/* Public Digital NFC Card View */}
-          <Route path="/c/:cardId" element={<DigitalCard />} />
-          <Route path="/u/:cardId" element={<DigitalCard />} />
+            {/* Public Digital NFC Card View */}
+            <Route path="/c/:cardId" element={<DigitalCard />} />
+            <Route path="/u/:cardId" element={<DigitalCard />} />
 
-          {/* User Dashboard routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<DashboardHome />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="mycard" element={<MyCard />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
+            {/* User Dashboard routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<DashboardHome />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="mycard" element={<MyCard />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
 
-          {/* Admin routes */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<AdminDashboard />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="cards" element={<AdminCards />} />
-          </Route>
+            {/* Admin routes */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="cards" element={<AdminCards />} />
+            </Route>
 
-          {/* 404 Redirect to home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+            {/* 404 Redirect to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </PWAProvider>
   );
 }
 

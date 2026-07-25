@@ -1,66 +1,21 @@
 import React from 'react';
 
 const Logo = ({ className = "h-8", light = false }) => {
-  const textColor = light ? "#ffffff" : "#0f172a";
+  const textColor = light ? "text-white" : "text-slate-900";
+  
   return (
-    <div className={`inline-flex items-center select-none ${className}`}>
-      <svg 
-        viewBox="0 0 160 50" 
-        className="h-full w-auto" 
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* 'onew' text */}
-        <text 
-          x="10" 
-          y="36" 
-          fontFamily="'Outfit', sans-serif" 
-          fontWeight="700" 
-          fontSize="26" 
-          fill={textColor}
-          letterSpacing="-0.5px"
-        >
-          onew
-        </text>
+    <div className={`inline-flex items-center space-x-2.5 select-none ${className}`}>
+      {/* Icon: Purple gradient rounded box with 'W' */}
+      <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#6344F5] to-indigo-600 flex items-center justify-center shadow-md shadow-[#6344F5]/25">
+        <svg className="w-5 h-5 text-white fill-current" viewBox="0 0 24 24">
+          <path d="M3.5 6L8.5 18L12 9.5L15.5 18L20.5 6H17.5L15.5 13.5L12 6L8.5 13.5L6.5 6H3.5Z" />
+        </svg>
+      </div>
 
-        {/* Dotless 'ı' text */}
-        <text 
-          x="75" 
-          y="36" 
-          fontFamily="'Outfit', sans-serif" 
-          fontWeight="700" 
-          fontSize="26" 
-          fill={textColor}
-        >
-          ı
-        </text>
-
-        {/* Custom Brand-colored Purple Dot for 'i' */}
-        <circle cx="78.5" cy="15.5" r="3.5" fill="#8B55FD" />
-
-        {/* 'nq' text */}
-        <text 
-          x="85" 
-          y="36" 
-          fontFamily="'Outfit', sans-serif" 
-          fontWeight="700" 
-          fontSize="26" 
-          fill={textColor}
-          letterSpacing="-0.5px"
-        >
-          nq
-        </text>
-
-        {/* Contactless Arches above 'q' */}
-        <g transform="translate(114, 22) rotate(-20)" stroke="#8B55FD" strokeWidth="2.8" strokeLinecap="round" fill="none">
-          {/* Inner Wave */}
-          <path d="M 8,0 A 8,8 0 0,0 0,-8" />
-          {/* Middle Wave */}
-          <path d="M 14,0 A 14,14 0 0,0 0,-14" />
-          {/* Outer Wave */}
-          <path d="M 20,0 A 20,20 0 0,0 0,-20" />
-        </g>
-      </svg>
+      {/* Brand Text */}
+      <span className={`text-xl font-extrabold tracking-tight ${textColor} font-sans`}>
+        One<span className="text-[#6344F5]">Winq</span>
+      </span>
     </div>
   );
 };

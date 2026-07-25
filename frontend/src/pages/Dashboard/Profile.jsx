@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../context/AuthContext';
+import { TEMPLATES } from '../../data/templatesData';
+import TemplateCardRenderer from '../../components/TemplateCardRenderer';
 import { 
-  User, Link2, Building2, Upload, AlertCircle, CheckCircle2, RefreshCw, FileText
+  User, Link2, Building2, Upload, AlertCircle, CheckCircle2, RefreshCw, FileText, Layout, Sparkles, Eye, Check, Lock,
+  Gem, Wand2, BarChart2, Globe, Shield, Ban, ArrowRight
 } from 'lucide-react';
 
 const Profile = () => {
@@ -11,11 +14,16 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState(null);
+  const [proUpgradeModal, setProUpgradeModal] = useState(null);
 
   // Upload progress states
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBrochure, setUploadingBrochure] = useState(false);
+
+  const [cardId, setCardId] = useState(null);
+  const [profileId, setProfileId] = useState(null);
 
   // Form State
   const [form, setForm] = useState({
@@ -29,6 +37,22 @@ const Profile = () => {
     whatsApp: '',
     address: '',
     profilePhoto: '',
+    templateId: 'nova',
+    customUsername: '',
+    tagline: '',
+    vision: '',
+    techStack: '',
+    experience: '2+ Years',
+    skillsCount: '12+ Skills',
+    projectsCount: '6+ Projects',
+    education: 'B.Tech CSE',
+    resume: '',
+    whatIDo: '',
+    roles: '',
+    conversationStarters: '',
+    currently: '',
+    lookingFor: '',
+    availability: 'Open for Opportunities',
     socialLinks: {
       linkedIn: '',
       instagram: '',
@@ -46,13 +70,26 @@ const Profile = () => {
 
   useEffect(() => {
     fetchProfile();
+    fetchCardDetails();
   }, []);
+
+  const fetchCardDetails = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/card/mycard`);
+      if (res.data.success && res.data.card) {
+        setCardId(res.data.card.cardId);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
       const res = await axios.get(`${API_URL}/profile/me`);
       if (res.data.success && res.data.profile) {
         const p = res.data.profile;
+        setProfileId(p._id);
         setForm({
           name: p.name || '',
           designation: p.designation || '',
@@ -63,7 +100,25 @@ const Profile = () => {
           website: p.website || '',
           whatsApp: p.whatsApp || '',
           address: p.address || '',
+          meetingLink: p.meetingLink || '',
+          videoUrl: p.videoUrl || '',
           profilePhoto: p.profilePhoto || '',
+          templateId: p.templateId || 'nova',
+          customUsername: p.customUsername || '',
+          tagline: p.tagline || '',
+          vision: p.vision || '',
+          techStack: Array.isArray(p.techStack) ? p.techStack.join(', ') : (p.techStack || ''),
+          experience: p.experience || '2+ Years',
+          skillsCount: p.skillsCount || '12+ Skills',
+          projectsCount: p.projectsCount || '6+ Projects',
+          education: p.education || 'B.Tech CSE',
+          resume: p.resume || '',
+          whatIDo: p.whatIDo || '',
+          roles: p.roles || '',
+          conversationStarters: p.conversationStarters || '',
+          currently: p.currently || '',
+          lookingFor: p.lookingFor || '',
+          availability: p.availability || 'Open for Opportunities',
           socialLinks: {
             linkedIn: p.socialLinks?.linkedIn || '',
             instagram: p.socialLinks?.instagram || '',
@@ -77,6 +132,13 @@ const Profile = () => {
             website: p.company?.website || '',
             brochure: p.company?.brochure || '',
           },
+          featuredWork: (p.featuredWork && p.featuredWork.length >= 3)
+            ? p.featuredWork
+            : [
+                { title: p.featuredWork?.[0]?.title || '', tag: p.featuredWork?.[0]?.tag || '', description: p.featuredWork?.[0]?.description || '', image: p.featuredWork?.[0]?.image || '', link: p.featuredWork?.[0]?.link || '' },
+                { title: p.featuredWork?.[1]?.title || '', tag: p.featuredWork?.[1]?.tag || '', description: p.featuredWork?.[1]?.description || '', image: p.featuredWork?.[1]?.image || '', link: p.featuredWork?.[1]?.link || '' },
+                { title: p.featuredWork?.[2]?.title || '', tag: p.featuredWork?.[2]?.tag || '', description: p.featuredWork?.[2]?.description || '', image: p.featuredWork?.[2]?.image || '', link: p.featuredWork?.[2]?.link || '' },
+              ],
         });
       }
     } catch (err) {
@@ -150,6 +212,31 @@ const Profile = () => {
     }
   };
 
+  const handleApplyTemplate = async (tmpl) => {
+    if (!tmpl.isFree) {
+      alert(`🔒 The "${tmpl.publicName}" template kit is coming soon! Stay tuned.`);
+      return;
+    }
+
+    const updatedForm = { ...form, templateId: tmpl.id };
+    setForm(updatedForm);
+    setSaving(true);
+    setError('');
+    setSuccess(false);
+
+    try {
+      const res = await axios.put(`${API_URL}/profile/me`, updatedForm);
+      if (res.data.success) {
+        setSuccess(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update template.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-slate-500 space-y-3">
@@ -161,13 +248,25 @@ const Profile = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 text-left">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">My Profile</h1>
-        <p className="text-sm text-slate-550 mt-1">Configure your digital NFC identity presentation card details.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">My Profile</h1>
+          <p className="text-sm text-slate-550 mt-1">Configure your digital NFC identity presentation card details.</p>
+        </div>
+
+        <a
+          href={`/u/${form.customUsername || cardId || profileId || 'me'}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all shrink-0 cursor-pointer"
+        >
+          <Eye className="h-4 w-4" />
+          <span>View Live Digital Card</span>
+        </a>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-200 overflow-x-auto space-x-1">
+      <div className="flex border-b border-slate-200 overflow-x-auto space-x-1 scrollbar-none -mx-1 px-1">
         <button
           onClick={() => setActiveTab('basic')}
           className={`flex items-center space-x-2 px-5 py-3 border-b-2 font-medium text-sm shrink-0 transition-all cursor-pointer ${
@@ -178,6 +277,7 @@ const Profile = () => {
           <span>Basic Profile</span>
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('social')}
           className={`flex items-center space-x-2 px-5 py-3 border-b-2 font-medium text-sm shrink-0 transition-all cursor-pointer ${
             activeTab === 'social' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
@@ -187,13 +287,23 @@ const Profile = () => {
           <span>Social Links</span>
         </button>
         <button
-          onClick={() => setActiveTab('company')}
+          type="button"
+          onClick={() => setActiveTab('work')}
           className={`flex items-center space-x-2 px-5 py-3 border-b-2 font-medium text-sm shrink-0 transition-all cursor-pointer ${
-            activeTab === 'company' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
+            activeTab === 'work' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
           }`}
         >
-          <Building2 className="h-4 w-4" />
-          <span>Company & Brochure</span>
+          <Sparkles className="h-4 w-4" />
+          <span>Featured Work & Images</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('templates')}
+          className={`flex items-center space-x-2 px-5 py-3 border-b-2 font-medium text-sm shrink-0 transition-all cursor-pointer ${
+            activeTab === 'templates' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-indigo-600'
+          }`}
+        >
+          <Layout className="h-4 w-4" />
+          <span>Templates & Design</span>
         </button>
       </div>
 
@@ -345,6 +455,8 @@ const Profile = () => {
                   onChange={(e) => setForm({ ...form, address: e.target.value })}
                 />
               </div>
+
+
             </div>
           </div>
         )}
@@ -522,6 +634,513 @@ const Profile = () => {
                   )}
                 </div>
                 <p className="text-xs text-slate-500 mt-2">Upload your official PDF catalog. Max size 10MB.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 5: Featured Work & Project Images */}
+        {activeTab === 'work' && (
+          <div className="glass-panel p-6 sm:p-8 rounded-2xl space-y-6">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                <Sparkles className="h-5 w-5 text-indigo-600" />
+                <span>Featured Work & Project Images</span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Customize the 3 Featured Work cards displayed on your digital identity profile. You can upload custom project images or paste image URLs!
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              {[0, 1, 2].map((idx) => {
+                const item = form.featuredWork?.[idx] || { title: '', tag: '', description: '', image: '', link: '' };
+                return (
+                  <div key={idx} className="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-4 text-left">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                      <span className="text-xs font-extrabold text-indigo-600 uppercase tracking-wider">
+                        Featured Work Card #{idx + 1}
+                      </span>
+                      {item.image && (
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                          ✓ Image Attached
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Project / Product Title</label>
+                        <input
+                          type="text"
+                          placeholder={idx === 0 ? 'NX Signature Tap Platform' : idx === 1 ? 'Enterprise AI Assistant' : 'Global SaaS Suite'}
+                          value={item.title || ''}
+                          onChange={(e) => {
+                            const updated = [...(form.featuredWork || [])];
+                            updated[idx] = { ...item, title: e.target.value };
+                            setForm({ ...form, featuredWork: updated });
+                          }}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Category / Tag</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Smart Identity, SaaS, AI Engine"
+                          value={item.tag || ''}
+                          onChange={(e) => {
+                            const updated = [...(form.featuredWork || [])];
+                            updated[idx] = { ...item, tag: e.target.value };
+                            setForm({ ...form, featuredWork: updated });
+                          }}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Card Image (Upload image file or paste URL)</label>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="url"
+                            placeholder="https://images.unsplash.com/photo-..."
+                            value={item.image || ''}
+                            onChange={(e) => {
+                              const updated = [...(form.featuredWork || [])];
+                              updated[idx] = { ...item, image: e.target.value };
+                              setForm({ ...form, featuredWork: updated });
+                            }}
+                            className="flex-1 bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                          />
+                          <label className="cursor-pointer bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shrink-0">
+                            <Upload className="h-3.5 w-3.5" />
+                            <span>Upload Image</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                try {
+                                  const res = await axios.post(`${API_URL}/profile/upload`, formData, {
+                                    headers: { 'Content-Type': 'multipart/form-data' },
+                                  });
+                                  if (res.data.success) {
+                                    const updated = [...(form.featuredWork || [])];
+                                    updated[idx] = { ...item, image: res.data.url };
+                                    setForm({ ...form, featuredWork: updated });
+                                  }
+                                } catch (err) {
+                                  alert('Failed to upload project image.');
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                        {item.image && (
+                          <div className="mt-2 h-24 w-40 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 relative">
+                            <img src={item.image} alt="Card Preview" className="h-full w-full object-cover" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Project Description</label>
+                        <textarea
+                          rows="2"
+                          placeholder="Brief summary of what this product or service does..."
+                          value={item.description || ''}
+                          onChange={(e) => {
+                            const updated = [...(form.featuredWork || [])];
+                            updated[idx] = { ...item, description: e.target.value };
+                            setForm({ ...form, featuredWork: updated });
+                          }}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                        ></textarea>
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Project External Link (Optional)</label>
+                        <input
+                          type="url"
+                          placeholder="https://myproject.com"
+                          value={item.link || ''}
+                          onChange={(e) => {
+                            const updated = [...(form.featuredWork || [])];
+                            updated[idx] = { ...item, link: e.target.value };
+                            setForm({ ...form, featuredWork: updated });
+                          }}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-600"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Templates & Design */}
+        {activeTab === 'templates' && (
+          <div className="glass-panel p-6 sm:p-8 rounded-2xl space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                  <Sparkles className="h-5 w-5 text-indigo-600" />
+                  <span>Choose Your Digital Profile Design System</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Templates change layout, typography, animations & color scheme without restricting your profile content.
+                </p>
+              </div>
+
+              <div className="bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-xl text-xs font-semibold text-indigo-700 flex items-center space-x-2 shrink-0">
+                <span>Active Template:</span>
+                <span className="font-extrabold text-indigo-900 uppercase">
+                  {TEMPLATES.find((t) => t.id === form.templateId)?.publicName || form.templateId}
+                </span>
+              </div>
+            </div>
+
+            {/* Upgrade to Pro Banner Box (Compact & Refined Typography) */}
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs mb-6 text-left relative overflow-hidden font-outfit">
+              <div className="flex flex-col lg:flex-row items-stretch justify-between gap-6">
+                
+                {/* Left Column */}
+                <div className="flex-1 space-y-2.5">
+                  {/* PRO Badge with Diamond */}
+                  <div className="inline-flex items-center space-x-1.5 bg-purple-50 text-purple-600 border border-purple-100 px-2.5 py-0.5 rounded-lg text-[11px] font-semibold">
+                    <Gem className="h-3 w-3 text-purple-600 fill-purple-100" />
+                    <span className="tracking-wide">PRO</span>
+                  </div>
+
+                  {/* Main Headline */}
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight leading-snug">
+                    Upgrade to Pro to Unlock <span className="text-indigo-600 font-bold">All Features</span>
+                  </h3>
+
+                  {/* Subtitle */}
+                  <p className="text-xs text-slate-500 font-normal max-w-lg leading-relaxed">
+                    Get advanced tools, premium templates, AI profile generation, custom domains and much more.
+                  </p>
+
+                  {/* 6 Feature Items (2 Rows x 3 Cols Grid) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+                    {/* Item 1 */}
+                    <div className="flex items-center space-x-2.5 bg-purple-50/30 border border-purple-100/50 p-2 rounded-xl">
+                      <div className="h-7 w-7 rounded-lg bg-purple-100/70 text-purple-600 flex items-center justify-center shrink-0">
+                        <Wand2 className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-[11px] font-semibold text-slate-700 leading-tight">Premium Templates</span>
+                    </div>
+
+                    {/* Item 2 */}
+                    <div className="flex items-center space-x-2.5 bg-purple-50/30 border border-purple-100/50 p-2 rounded-xl">
+                      <div className="h-7 w-7 rounded-lg bg-purple-100/70 text-purple-600 flex items-center justify-center shrink-0">
+                        <Sparkles className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-[11px] font-semibold text-slate-700 leading-tight">AI Profile Generator</span>
+                    </div>
+
+                    {/* Item 3 */}
+                    <div className="flex items-center space-x-2.5 bg-purple-50/30 border border-purple-100/50 p-2 rounded-xl">
+                      <div className="h-7 w-7 rounded-lg bg-purple-100/70 text-purple-600 flex items-center justify-center shrink-0">
+                        <BarChart2 className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-[11px] font-semibold text-slate-700 leading-tight">Advanced Analytics</span>
+                    </div>
+
+                    {/* Item 4 */}
+                    <div className="flex items-center space-x-2.5 bg-purple-50/30 border border-purple-100/50 p-2 rounded-xl">
+                      <div className="h-7 w-7 rounded-lg bg-purple-100/70 text-purple-600 flex items-center justify-center shrink-0">
+                        <Globe className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-[11px] font-semibold text-slate-700 leading-tight">Custom Domain</span>
+                    </div>
+
+                    {/* Item 5 */}
+                    <div className="flex items-center space-x-2.5 bg-purple-50/30 border border-purple-100/50 p-2 rounded-xl">
+                      <div className="h-7 w-7 rounded-lg bg-purple-100/70 text-purple-600 flex items-center justify-center shrink-0">
+                        <Shield className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-[11px] font-semibold text-slate-700 leading-tight">Priority Support</span>
+                    </div>
+
+                    {/* Item 6 */}
+                    <div className="flex items-center space-x-2.5 bg-purple-50/30 border border-purple-100/50 p-2 rounded-xl">
+                      <div className="h-7 w-7 rounded-lg bg-purple-100/70 text-purple-600 flex items-center justify-center shrink-0">
+                        <Ban className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-[11px] font-semibold text-slate-700 leading-tight">Ad-free Experience</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vertical Divider for large screens */}
+                <div className="hidden lg:block w-px bg-slate-100 self-stretch my-1"></div>
+
+                {/* Right Pricing Column */}
+                <div className="lg:w-56 flex flex-col items-center justify-center text-center p-2 lg:p-0">
+                  <span className="text-[11px] font-medium text-slate-400">Starting at</span>
+                  <div className="text-3xl sm:text-4xl font-bold text-indigo-600 tracking-tight my-0.5">
+                    ₹999
+                  </div>
+                  <span className="text-[11px] font-medium text-slate-400 mb-4">/ year</span>
+
+                  <a
+                    href="/pricing"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-5 rounded-xl text-xs transition-all shadow-sm shadow-indigo-600/10 flex items-center justify-center space-x-1.5 cursor-pointer"
+                  >
+                    <span>Upgrade to Pro</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </a>
+
+                  <span className="text-[10px] text-slate-400 font-normal mt-2">Cancel anytime</span>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Templates Grid Header */}
+            <div className="pt-2 mb-4 flex items-center justify-between">
+              <h4 className="text-md font-bold text-slate-900">8 Purpose-Driven Launch Kits & Pricing</h4>
+              <span className="text-xs font-semibold text-slate-500">2 Free • 6 Premium Kits</span>
+            </div>
+
+            {/* Templates Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {TEMPLATES.map((tmpl) => {
+                const isSelected = form.templateId === tmpl.id;
+                const isLocked = !tmpl.isFree;
+
+                return (
+                  <div
+                    key={tmpl.id}
+                    className={`rounded-2xl border transition-all duration-300 p-5 flex flex-col justify-between relative text-left ${
+                      isSelected
+                        ? 'border-2 border-indigo-600 bg-indigo-50/40 shadow-md ring-2 ring-indigo-600/10'
+                        : isLocked
+                        ? 'border-slate-200 bg-slate-50/60 opacity-95'
+                        : 'border-slate-200 bg-white hover:border-indigo-300 shadow-xs'
+                    }`}
+                  >
+                    {/* Badge */}
+                    <div className="flex items-center justify-between mb-3">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center space-x-1 ${
+                        tmpl.isFree 
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                          : 'bg-amber-100 text-amber-900 border border-amber-200'
+                      }`}>
+                        {isLocked && <Lock className="h-3 w-3 mr-0.5 text-amber-700" />}
+                        <span>{tmpl.isFree ? 'Free Unlocked' : '🔒 Coming Soon'}</span>
+                      </span>
+                      {isSelected && (
+                        <span className="bg-indigo-600 text-white p-1 rounded-full text-xs flex items-center space-x-1 px-2.5 font-bold">
+                          <Check className="h-3.5 w-3.5" />
+                          <span>Active</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <h4 className="text-xl font-bold text-slate-900 flex items-center justify-between">
+                        <span className="flex items-center space-x-1.5">
+                          <span>{tmpl.publicName}</span>
+                          {isLocked && <Lock className="h-4 w-4 text-amber-500" />}
+                        </span>
+                        <span className="text-xs text-slate-400 font-normal">({tmpl.internalCategory})</span>
+                      </h4>
+                      <p className="text-xs font-semibold text-indigo-600 mt-0.5">{tmpl.tagline}</p>
+                      <p className="text-xs text-slate-550 mt-2 leading-relaxed">{tmpl.description}</p>
+                      
+                      <div className="mt-3 bg-white border border-slate-200 rounded-lg p-2.5 space-y-2 text-[11px] text-slate-600">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-700">Best For: {tmpl.bestFor}</span>
+                          {isLocked && (
+                            <span className="font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 text-[10px]">
+                              🔒 Soon
+                            </span>
+                          )}
+                        </div>
+                        {/* Exclusive Blocks Pill List (Only shown for free unlocked templates) */}
+                        {!isLocked && tmpl.exclusiveBlocks && (
+                          <div className="pt-1 border-t border-slate-100">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Exclusive Kit Blocks:</span>
+                            <div className="flex flex-wrap gap-1">
+                              {tmpl.exclusiveBlocks.map((block, idx) => (
+                                <span key={idx} className="bg-slate-100 text-slate-700 border border-slate-200 px-1.5 py-0.5 rounded text-[10px] font-medium">
+                                  ✓ {block}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className={`mt-5 pt-3 border-t border-slate-100 ${isLocked ? 'flex justify-center' : 'grid grid-cols-2 gap-2'}`}>
+                      {!isLocked && (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewTemplate(tmpl)}
+                          className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-xs transition-all flex items-center justify-center space-x-1 cursor-pointer"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                          <span>Live Preview</span>
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => handleApplyTemplate(tmpl)}
+                        className={`w-full font-bold py-2 rounded-xl text-xs transition-all flex items-center justify-center space-x-1 cursor-pointer ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white cursor-default'
+                            : isLocked
+                            ? 'bg-slate-800 hover:bg-slate-700 text-amber-300 shadow-xs border border-amber-500/30'
+                            : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs'
+                        }`}
+                      >
+                        {isSelected ? (
+                          <>
+                            <Check className="h-3.5 w-3.5" />
+                            <span>Selected</span>
+                          </>
+                        ) : isLocked ? (
+                          <>
+                            <Lock className="h-3.5 w-3.5 text-amber-400" />
+                            <span>Coming Soon</span>
+                          </>
+                        ) : (
+                          <span>Apply Template</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Pro Upgrade & Buy Template Modal */}
+        {proUpgradeModal && (
+          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-5 shadow-2xl font-outfit text-white relative animate-in fade-in zoom-in duration-200">
+              <div className="h-16 w-16 bg-gradient-to-tr from-amber-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-amber-500/20">
+                <Lock className="h-8 w-8 text-white" />
+              </div>
+
+              <div>
+                <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider inline-block">
+                  UNLOCK TEMPLATE
+                </span>
+                <h3 className="text-2xl font-extrabold text-white mt-3">
+                  Unlock {proUpgradeModal.publicName} Template
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                  Choose how you'd like to unlock the <span className="text-indigo-400 font-bold">{proUpgradeModal.publicName}</span> template ({proUpgradeModal.tagline}):
+                </p>
+              </div>
+
+              {/* Purchase Options */}
+              <div className="space-y-3 pt-2 text-left">
+                {/* Option 1: Buy Standalone Template */}
+                <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl flex items-center justify-between">
+                  <div>
+                    <h5 className="font-bold text-sm text-white">Buy Template Individually</h5>
+                    <p className="text-xs text-slate-400">One-time purchase for this template only.</p>
+                  </div>
+                  <a
+                    href="/pricing"
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs"
+                  >
+                    Buy ₹{proUpgradeModal.price}
+                  </a>
+                </div>
+
+                {/* Option 2: Upgrade to Pro (All Included) */}
+                <div className="bg-gradient-to-r from-amber-950/40 via-indigo-950/40 to-slate-800 border border-amber-500/40 p-4 rounded-2xl flex items-center justify-between">
+                  <div>
+                    <h5 className="font-extrabold text-sm text-amber-300 flex items-center space-x-1">
+                      <span>Upgrade to Pro Plan</span>
+                      <Sparkles className="h-3.5 w-3.5" />
+                    </h5>
+                    <p className="text-xs text-slate-300">Unlock ALL 7+ templates + AI tools & custom branding.</p>
+                  </div>
+                  <a
+                    href="/pricing"
+                    className="bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 text-slate-950 text-xs font-extrabold px-3.5 py-2 rounded-xl shadow-md"
+                  >
+                    Upgrade Pro
+                  </a>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setProUpgradeModal(null)}
+                  className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl text-xs transition-all cursor-pointer"
+                >
+                  Cancel & Stay Free
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Live Template Preview Modal */}
+        {previewTemplate && (
+          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-slate-950 border border-slate-800 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-4 relative shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="text-left">
+                  <h3 className="text-base font-bold text-white flex items-center space-x-2">
+                    <span>Previewing: {previewTemplate.publicName}</span>
+                    <span className="text-xs font-semibold text-indigo-400">({previewTemplate.tagline})</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400">Live preview with your actual profile data</p>
+                </div>
+                <button
+                  onClick={() => setPreviewTemplate(null)}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1 rounded-xl text-xs"
+                >
+                  ✕ Close
+                </button>
+              </div>
+
+              <div className="overflow-y-auto max-h-[70vh]">
+                <TemplateCardRenderer
+                  profile={form}
+                  templateIdOverride={previewTemplate.id}
+                  onSaveContact={() => alert('Save contact preview trigger!')}
+                  isPreview={true}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3 border-t border-slate-800 pt-3">
+                <button
+                  onClick={() => setPreviewTemplate(null)}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-2 rounded-xl text-xs"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    handleApplyTemplate(previewTemplate);
+                    setPreviewTemplate(null);
+                  }}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2 rounded-xl text-xs cursor-pointer"
+                >
+                  Apply {previewTemplate.publicName} Template
+                </button>
               </div>
             </div>
           </div>

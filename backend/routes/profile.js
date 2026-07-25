@@ -97,6 +97,22 @@ router.put('/me', protect, async (req, res) => {
       socialLinks,
       company,
       profilePhoto,
+      templateId,
+      customUsername,
+      tagline,
+      vision,
+      techStack,
+      experience,
+      skillsCount,
+      projectsCount,
+      education,
+      resume,
+      whatIDo,
+      roles,
+      conversationStarters,
+      currently,
+      lookingFor,
+      availability,
     } = req.body;
 
     let profile = await Profile.findOne({ user: req.user._id });
@@ -115,7 +131,32 @@ router.put('/me', protect, async (req, res) => {
     profile.website = website !== undefined ? website : profile.website;
     profile.whatsApp = whatsApp !== undefined ? whatsApp : profile.whatsApp;
     profile.address = address !== undefined ? address : profile.address;
-    
+    profile.templateId = templateId !== undefined ? templateId : profile.templateId;
+    profile.customUsername = customUsername !== undefined ? customUsername : profile.customUsername;
+    profile.tagline = tagline !== undefined ? tagline : profile.tagline;
+    profile.vision = vision !== undefined ? vision : profile.vision;
+    if (techStack !== undefined) profile.techStack = techStack;
+    profile.experience = experience !== undefined ? experience : profile.experience;
+    profile.skillsCount = skillsCount !== undefined ? skillsCount : profile.skillsCount;
+    profile.projectsCount = projectsCount !== undefined ? projectsCount : profile.projectsCount;
+    profile.education = education !== undefined ? education : profile.education;
+    profile.resume = resume !== undefined ? resume : profile.resume;
+
+    // Identity Platform Fields
+    if (whatIDo !== undefined) profile.whatIDo = whatIDo;
+    if (roles !== undefined) profile.roles = roles;
+    if (conversationStarters !== undefined) profile.conversationStarters = conversationStarters;
+    if (currently !== undefined) profile.currently = currently;
+    if (lookingFor !== undefined) profile.lookingFor = lookingFor;
+    if (availability !== undefined) profile.availability = availability;
+
+    // Digital Identity Let's Connect Fields
+    if (req.body.meetingLink !== undefined) profile.meetingLink = req.body.meetingLink;
+    if (req.body.videoUrl !== undefined) profile.videoUrl = req.body.videoUrl;
+    if (req.body.cardStyle !== undefined) profile.cardStyle = req.body.cardStyle;
+    if (req.body.services !== undefined) profile.services = req.body.services;
+    if (req.body.featuredWork !== undefined) profile.featuredWork = req.body.featuredWork;
+
     if (profilePhoto !== undefined) {
       profile.profilePhoto = profilePhoto;
     }

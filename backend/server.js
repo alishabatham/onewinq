@@ -64,10 +64,24 @@ app.use((err, req, res, next) => {
 // Export app for serverless environment
 module.exports = app;
 
-// Start Server locally or via direct execution (e.g. Render)
+// Start Server locally or via direct execution
 if (require.main === module) {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  });
+  let PORT = parseInt(process.env.PORT, 10) || 5000;
+  
+  const startServer = (portToTry) => {
+    const server = app.listen(portToTry, () => {
+      console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${portToTry}`);
+    });
+
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.warn(`Port ${portToTry} is in use, trying port ${portToTry + 1}...`);
+        startServer(portToTry + 1);
+      } else {
+        console.error('Server startup error:', err);
+      }
+    });
+  };
+
+  startServer(PORT);
 }

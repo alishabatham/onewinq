@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth, API_URL } from '../../context/AuthContext';
+import TemplateCardRenderer from '../../components/TemplateCardRenderer';
+import LetsConnectSection from '../../components/LetsConnectSection';
+import { getTemplateById } from '../../data/templatesData';
 import { 
-  Phone, MessageSquare, Mail, Globe, FileText, Download, User, AlertCircle, ShieldAlert, CreditCard, RefreshCw
+  Phone, MessageSquare, Mail, Globe, FileText, Download, User, AlertCircle, ShieldAlert, CreditCard, RefreshCw, Share2
 } from 'lucide-react';
 
 const DigitalCard = () => {
@@ -24,8 +27,9 @@ const DigitalCard = () => {
 
   useEffect(() => {
     if (profile) {
+      const profileName = profile.name || 'Digital Card';
       // Set page title to profile name
-      document.title = `${profile.name} | OneWinq`;
+      document.title = `${profileName} | OneWinq`;
 
       // Set Apple Touch Icon to profile photo (for home screen bookmark icon)
       let appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
@@ -47,7 +51,7 @@ const DigitalCard = () => {
         metaAppTitle.name = 'apple-mobile-web-app-title';
         document.head.appendChild(metaAppTitle);
       }
-      metaAppTitle.content = profile.name;
+      metaAppTitle.content = profileName;
     }
   }, [profile]);
 
@@ -68,8 +72,7 @@ const DigitalCard = () => {
       if (err.response?.status === 403 && err.response?.data?.status === 'paused') {
         setCardStatus('paused');
       } else {
-        // Redirect to standard OneWinq website homepage if card is not found
-        window.location.href = '/';
+        setError(err.response?.data?.message || 'The digital card profile you requested could not be found.');
       }
     } finally {
       setLoading(false);
@@ -121,6 +124,18 @@ const DigitalCard = () => {
     document.body.removeChild(link);
   };
 
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: `${profile?.name || 'Digital Identity Card'} | OneWinq`,
+        url: window.location.href,
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Profile link copied to clipboard!');
+    }
+  };
+
   const cleanPhone = (num) => {
     if (!num) return '';
     return num.replace(/[^+\d]/g, ''); // strip out dashes and spaces for tel link
@@ -165,7 +180,7 @@ const DigitalCard = () => {
           </div>
 
           <h2 className="text-2xl font-bold text-slate-900 leading-tight">Activate Your Card</h2>
-          <p className="text-slate-500 text-sm mt-3 leading-relaxed max-w-xs">
+          <p className="text-slate-550 text-sm mt-3 leading-relaxed max-w-xs">
             This OneWinq smart business card has not been activated yet. Link it to your profile to start networking instantly.
           </p>
 
@@ -252,185 +267,19 @@ const DigitalCard = () => {
     );
   }
 
+  const templatePreviewParam = searchParams.get('template');
+  const selectedTemplateId = templatePreviewParam || profile?.templateId || 'nova';
+  const currentTemplate = getTemplateById(selectedTemplateId);
+  const isLightMode = selectedTemplateId === 'nova';
+
   return (
-    <div className="bg-slate-50 text-slate-800 min-h-screen py-10 px-4 sm:px-6 relative flex flex-col justify-start items-center">
-      {/* Background radial effects */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div className="w-full max-w-md relative z-10 space-y-6">
-        {/* Core Profile Card */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col items-center text-center relative overflow-hidden shadow-sm">
-          <div className="absolute top-0 left-0 w-full h-20 bg-indigo-50 border-b border-indigo-100"></div>
-          
-          {/* Profile Picture */}
-          <div className="h-28 w-28 rounded-full bg-slate-50 border-4 border-white flex items-center justify-center overflow-hidden z-10 shadow-sm mt-4">
-            {profile.profilePhoto ? (
-              <img src={profile.profilePhoto} alt={profile.name} className="h-full w-full object-cover" />
-            ) : (
-              <User className="h-12 w-12 text-slate-400" />
-            )}
-          </div>
-
-          <h2 className="text-2xl font-bold text-slate-900 mt-4">{profile.name}</h2>
-          
-          {profile.designation && profile.companyName && (
-            <p className="text-sm font-semibold text-indigo-600 mt-1">
-              {profile.designation} <span className="text-slate-400 font-normal">at</span> {profile.companyName}
-            </p>
-          )}
-
-          {profile.about && (
-            <p className="text-xs text-slate-650 mt-4 max-w-sm italic leading-relaxed">
-              "{profile.about}"
-            </p>
-          )}
-
-          {profile.address && (
-            <p className="text-[11px] text-slate-500 mt-3">
-              📍 {profile.address}
-            </p>
-          )}
-
-          {/* Save Contact vCard trigger */}
-          <button
-            onClick={handleSaveContact}
-            className="mt-6 w-full bg-indigo-655 hover:bg-indigo-750 text-white font-bold py-3.5 rounded-xl shadow-xs transition-all flex items-center justify-center space-x-2 text-sm cursor-pointer"
-          >
-            <Download className="h-4 w-4" />
-            <span>Save Contact</span>
-          </button>
-        </div>
-
-        {/* Action contact dialers */}
-        <div className="grid grid-cols-3 gap-2">
-          {profile.mobile && (
-            <a
-              href={`tel:${cleanPhone(profile.mobile)}`}
-              className="bg-white border border-slate-200 rounded-2xl py-4 flex flex-col items-center justify-center space-y-1 hover:bg-slate-50 transition-colors shadow-xs"
-            >
-              <Phone className="h-5 w-5 text-indigo-600" />
-              <span className="text-[10px] font-semibold text-slate-500">Call</span>
-            </a>
-          )}
-          {profile.whatsApp && (
-            <a
-              href={`https://wa.me/${cleanPhone(profile.whatsApp)}`}
-              target="_blank"
-              rel="noreferrer"
-              className="bg-white border border-slate-200 rounded-2xl py-4 flex flex-col items-center justify-center space-y-1 hover:bg-slate-50 transition-colors shadow-xs"
-            >
-              <MessageSquare className="h-5 w-5 text-emerald-600" />
-              <span className="text-[10px] font-semibold text-slate-500">WhatsApp</span>
-            </a>
-          )}
-          {profile.email && (
-            <a
-              href={`mailto:${profile.email}`}
-              className="bg-white border border-slate-200 rounded-2xl py-4 flex flex-col items-center justify-center space-y-1 hover:bg-slate-50 transition-colors shadow-xs"
-            >
-              <Mail className="h-5 w-5 text-violet-600" />
-              <span className="text-[10px] font-semibold text-slate-500">Email</span>
-            </a>
-          )}
-        </div>
-
-        {/* Links and Brochure */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-4 space-y-3 shadow-xs">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 text-left">Links & Attachments</h3>
-          
-          {profile.website && (
-            <a
-              href={profile.website}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-300 transition-all text-left"
-            >
-              <div className="flex items-center space-x-3">
-                <Globe className="h-5 w-5 text-indigo-600" />
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800">Personal Website</h4>
-                  <p className="text-[10px] text-slate-500 truncate max-w-[200px]">{profile.website}</p>
-                </div>
-              </div>
-              <span className="text-xs text-indigo-600 font-semibold">Visit</span>
-            </a>
-          )}
-
-          {profile.socialLinks?.linkedIn && (
-            <a
-              href={profile.socialLinks.linkedIn}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-300 transition-all text-left"
-            >
-              <div className="flex items-center space-x-3">
-                <svg className="h-5 w-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800">LinkedIn Profile</h4>
-                  <p className="text-[10px] text-slate-500 truncate max-w-[200px]">{profile.socialLinks.linkedIn}</p>
-                </div>
-              </div>
-              <span className="text-xs text-indigo-600 font-semibold">Connect</span>
-            </a>
-          )}
-
-          {profile.company?.brochure && (
-            <a
-              href={profile.company.brochure}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-indigo-100 hover:border-indigo-300 transition-all text-left"
-            >
-              <div className="flex items-center space-x-3">
-                <FileText className="h-5 w-5 text-indigo-600" />
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800">Company Brochure</h4>
-                  <p className="text-[10px] text-slate-500">Download PDF brochure catalog</p>
-                </div>
-              </div>
-              <span className="text-xs text-indigo-600 font-semibold flex items-center space-x-1">
-                <span>View PDF</span>
-              </span>
-            </a>
-          )}
-        </div>
-
-        {/* Company Card Section */}
-        {profile.company?.description && (
-          <div className="bg-white rounded-3xl border border-slate-200 p-5 text-left space-y-4 shadow-xs">
-            <div className="flex items-center space-x-3">
-              {profile.company.logo ? (
-                <div className="h-10 w-10 bg-slate-50 border border-slate-200 p-0.5 rounded-lg flex items-center justify-center overflow-hidden">
-                  <img src={profile.company.logo} alt="Company Logo" className="h-full w-full object-contain" />
-                </div>
-              ) : (
-                <div className="h-10 w-10 bg-indigo-50 text-indigo-600 p-2 rounded-lg flex items-center justify-center border border-indigo-100">
-                  <Globe className="h-5 w-5" />
-                </div>
-              )}
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">About {profile.companyName || ' NX Group'}</h3>
-                {profile.company.website && (
-                  <a href={profile.company.website} target="_blank" rel="noreferrer" className="text-[10px] text-indigo-600 hover:underline">
-                    {profile.company.website}
-                  </a>
-                )}
-              </div>
-            </div>
-            <p className="text-xs text-slate-550 leading-relaxed border-t border-slate-100 pt-3">
-              {profile.company.description}
-            </p>
-          </div>
-        )}
-
-        {/* Footer Brand */}
-        <div className="text-center pt-4">
-          <span className="text-[10px] text-slate-400 flex items-center justify-center space-x-1.5">
-            <CreditCard className="h-3 w-3" />
-            <span>Powered by <span className="font-bold text-slate-500">OneWinq Digital</span></span>
-          </span>
-        </div>
-      </div>
+    <div className={`min-h-screen font-outfit ${isLightMode ? 'bg-slate-100 text-slate-900' : 'bg-[#090b15] text-slate-100'}`}>
+      <TemplateCardRenderer
+        profile={profile}
+        templateIdOverride={templatePreviewParam || profile.templateId}
+        onSaveContact={handleSaveContact}
+        isPreview={false}
+      />
     </div>
   );
 };
