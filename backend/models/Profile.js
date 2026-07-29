@@ -182,6 +182,7 @@ const ProfileSchema = new mongoose.Schema({
   ],
   companiesBuilt: { type: String, trim: true, default: '' },
   connectionsCount: { type: String, trim: true, default: '' },
+  totalConnections: { type: Number, default: 0 },
   experienceLabel: { type: String, trim: true, default: '' },
   connectionsLabel: { type: String, trim: true, default: '' },
   companiesLabel: { type: String, trim: true, default: '' },

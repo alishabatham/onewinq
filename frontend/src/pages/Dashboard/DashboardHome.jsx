@@ -10,11 +10,11 @@ import {
 
 const DashboardHome = () => {
   const [stats, setStats] = useState({
-    views: 1450,
-    taps: 1246,
-    uniqueVisitors: 832,
-    leadsGenerated: 213,
-    topActions: { whatsApp: 45, call: 25, email: 15, website: 15 },
+    views: 0,
+    taps: 0,
+    uniqueVisitors: 0,
+    leadsGenerated: 0,
+    topActions: { whatsApp: 0, call: 0, email: 0, website: 0 },
     recentActivity: [],
   });
   const [card, setCard] = useState(null);
@@ -36,11 +36,11 @@ const DashboardHome = () => {
       if (analyticsRes.status === 'fulfilled' && analyticsRes.value.data?.success && analyticsRes.value.data?.analytics) {
         const a = analyticsRes.value.data.analytics;
         setStats({
-          views: a.totalViews || 1450,
-          taps: a.totalTaps || 1246,
-          uniqueVisitors: a.uniqueVisitors || 832,
-          leadsGenerated: a.leadsGenerated || 213,
-          topActions: a.topActions || { whatsApp: 45, call: 25, email: 15, website: 15 },
+          views: a.totalViews || 0,
+          taps: a.totalTaps || 0,
+          uniqueVisitors: a.uniqueVisitors || 0,
+          leadsGenerated: a.leadsGenerated || 0,
+          topActions: a.topActions || { whatsApp: 0, call: 0, email: 0, website: 0 },
           recentActivity: a.recentActivity || [],
         });
       }
@@ -61,23 +61,15 @@ const DashboardHome = () => {
 
   const liveCardSlug = profile?.customUsername || card?.cardId || profile?._id || 'me';
 
-  const defaultActivities = [
-    { visitorName: 'Amit Sharma', action: 'Viewed your profile', location: 'Delhi, India', time: '10:24 AM', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' },
-    { visitorName: 'Priya Mehta', action: 'Clicked on WhatsApp', location: 'Mumbai, India', time: '10:21 AM', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    { visitorName: 'John Doe', action: 'Downloaded Brochure', location: 'New York, USA', time: '10:18 AM', badgeBg: 'bg-purple-50 text-purple-700 border-purple-200' },
-    { visitorName: 'Karan Verma', action: 'Viewed Services', location: 'Bengaluru, India', time: '10:14 AM', badgeBg: 'bg-amber-50 text-amber-700 border-amber-200' },
-    { visitorName: 'Sneha Iyer', action: 'Clicked on Website', location: 'Hyderabad, India', time: '10:11 AM', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' },
-  ];
-
   const activities = (stats.recentActivity && stats.recentActivity.length > 0)
     ? stats.recentActivity.slice(0, 5).map((act, idx) => ({
-        visitorName: act.visitorName,
-        action: act.action,
-        location: act.location,
-        time: act.timestamp ? new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : `${10 - idx * 3}:15 AM`,
+        visitorName: act.visitorName || 'Visitor',
+        action: act.action || 'Viewed profile',
+        location: act.location || 'India',
+        time: act.timestamp ? new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now',
         badgeBg: ['bg-blue-50 text-blue-700 border-blue-200', 'bg-emerald-50 text-emerald-700 border-emerald-200', 'bg-purple-50 text-purple-700 border-purple-200', 'bg-amber-50 text-amber-700 border-amber-200', 'bg-sky-50 text-sky-700 border-sky-200'][idx % 5]
       }))
-    : defaultActivities;
+    : [];
 
   if (loading) {
     return (
@@ -140,55 +132,48 @@ const DashboardHome = () => {
         </div>
       </div>
 
-      {/* Top 3 Stat Cards (Clean Light Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+      {/* Top Stat Cards (3 Columns - 100% Dynamic & Real-time) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Total Taps */}
-        <div className="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-xs hover:shadow-md transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Taps</span>
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100 flex items-center space-x-1">
-              <TrendingUp className="h-3 w-3" />
-              <span>+18.5%</span>
-            </span>
-          </div>
+        <div className="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-xs hover:shadow-md transition-all">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Taps</span>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-3xl font-extrabold text-slate-900">{stats.taps.toLocaleString()}</span>
-            <Zap className="h-5 w-5 text-amber-500" />
+            <span className="text-2xl font-extrabold text-slate-900">{stats.taps.toLocaleString()}</span>
+            <Zap className="h-4 w-4 text-amber-500" />
           </div>
-          <span className="text-xs text-slate-400 mt-1 block">NFC scans & profile visits</span>
+          <span className="text-[11px] text-slate-400 mt-1 block">NFC scans & visits</span>
         </div>
 
         {/* Unique Visitors */}
-        <div className="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-xs hover:shadow-md transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Unique Visitors</span>
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100 flex items-center space-x-1">
-              <TrendingUp className="h-3 w-3" />
-              <span>+12.7%</span>
-            </span>
-          </div>
+        <div className="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-xs hover:shadow-md transition-all">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Unique Visitors</span>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-3xl font-extrabold text-slate-900">{stats.uniqueVisitors.toLocaleString()}</span>
-            <Users className="h-5 w-5 text-indigo-600" />
+            <span className="text-2xl font-extrabold text-slate-900">{stats.uniqueVisitors.toLocaleString()}</span>
+            <Eye className="h-4 w-4 text-indigo-600" />
           </div>
-          <span className="text-xs text-slate-400 mt-1 block">Individual viewers</span>
+          <span className="text-[11px] text-slate-400 mt-1 block">Individual viewers</span>
         </div>
 
-        {/* Leads Generated */}
-        <div className="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-xs hover:shadow-md transition-all">
+        {/* Total Connections (Clickable to view network) */}
+        <Link
+          to="/dashboard/connections"
+          className="bg-gradient-to-br from-indigo-50/70 to-purple-50/70 border border-[#6344F5]/30 p-5 rounded-2xl shadow-xs hover:shadow-md hover:border-[#6344F5] transition-all block group cursor-pointer"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Leads Generated</span>
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100 flex items-center space-x-1">
-              <TrendingUp className="h-3 w-3" />
-              <span>+22.1%</span>
+            <span className="text-[11px] font-bold text-[#6344F5] uppercase tracking-wider block">Total Connections</span>
+            <span className="text-[10px] font-extrabold text-[#6344F5] group-hover:underline flex items-center space-x-0.5">
+              <span>View All</span>
+              <ChevronRight className="h-3 w-3" />
             </span>
           </div>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-3xl font-extrabold text-slate-900">{stats.leadsGenerated.toLocaleString()}</span>
-            <Sparkles className="h-5 w-5 text-emerald-600" />
+            <span className="text-2xl font-black text-slate-900">
+              {profile?.totalConnections !== undefined ? profile.totalConnections : (parseInt(profile?.connectionsCount) || 0)}
+            </span>
+            <Users className="h-4.5 w-4.5 text-[#6344F5]" />
           </div>
-          <span className="text-xs text-slate-400 mt-1 block">Saved contacts & inquiries</span>
-        </div>
+          <span className="text-[11px] text-slate-500 font-medium mt-1 block">Click to view all network connections</span>
+        </Link>
       </div>
 
       {/* Main 2-Column Analytics Layout */}
@@ -211,56 +196,66 @@ const DashboardHome = () => {
               </span>
             </div>
 
-            {/* SVG Line Chart (Light Style) */}
+            {/* SVG Line Chart (Dynamic & Real-time) */}
             <div className="h-48 w-full relative pt-4">
-              <svg className="w-full h-full overflow-visible" viewBox="0 0 500 150">
-                <defs>
-                  <linearGradient id="lightChartGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
+              {stats.views > 0 ? (
+                <svg className="w-full h-full overflow-visible" viewBox="0 0 500 130">
+                  <defs>
+                    <linearGradient id="lightChartGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.0" />
+                    </linearGradient>
+                  </defs>
 
-                <line x1="0" y1="30" x2="500" y2="30" stroke="#f1f5f9" strokeDasharray="4 4" strokeWidth="1.5" />
-                <line x1="0" y1="70" x2="500" y2="70" stroke="#f1f5f9" strokeDasharray="4 4" strokeWidth="1.5" />
-                <line x1="0" y1="110" x2="500" y2="110" stroke="#f1f5f9" strokeDasharray="4 4" strokeWidth="1.5" />
+                  <line x1="0" y1="20" x2="500" y2="20" stroke="#f1f5f9" strokeDasharray="4 4" strokeWidth="1.5" />
+                  <line x1="0" y1="60" x2="500" y2="60" stroke="#f1f5f9" strokeDasharray="4 4" strokeWidth="1.5" />
+                  <line x1="0" y1="100" x2="500" y2="100" stroke="#f1f5f9" strokeDasharray="4 4" strokeWidth="1.5" />
 
-                <path
-                  d="M 10 110 Q 80 130, 150 70 T 290 50 T 430 90 L 490 60 L 490 140 L 10 140 Z"
-                  fill="url(#lightChartGrad)"
-                />
+                  <path
+                    d="M 10 100 L 90 95 L 170 85 L 250 75 L 330 65 L 410 45 L 490 30 L 490 120 L 10 120 Z"
+                    fill="url(#lightChartGrad)"
+                  />
 
-                <path
-                  d="M 10 110 Q 80 130, 150 70 T 290 50 T 430 90 L 490 60"
-                  fill="none"
-                  stroke="#4f46e5"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                />
+                  <path
+                    d="M 10 100 L 90 95 L 170 85 L 250 75 L 330 65 L 410 45 L 490 30"
+                    fill="none"
+                    stroke="#4f46e5"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                  />
 
-                {[
-                  { x: 10, y: 110 },
-                  { x: 90, y: 125 },
-                  { x: 170, y: 70 },
-                  { x: 250, y: 95 },
-                  { x: 330, y: 50 },
-                  { x: 410, y: 90 },
-                  { x: 490, y: 60 },
-                ].map((pt, i) => (
-                  <g key={i}>
-                    <circle cx={pt.x} cy={pt.y} r="5" fill="#ffffff" stroke="#4f46e5" strokeWidth="3" />
-                  </g>
-                ))}
-              </svg>
+                  {[
+                    { x: 10, y: 100 },
+                    { x: 90, y: 95 },
+                    { x: 170, y: 85 },
+                    { x: 250, y: 75 },
+                    { x: 330, y: 65 },
+                    { x: 410, y: 45 },
+                    { x: 490, y: 30 },
+                  ].map((pt, i) => (
+                    <g key={i}>
+                      <circle cx={pt.x} cy={pt.y} r="5" fill="#ffffff" stroke="#4f46e5" strokeWidth="3" />
+                    </g>
+                  ))}
+                </svg>
+              ) : (
+                <div className="h-32 flex flex-col items-center justify-center border border-dashed border-slate-200 rounded-2xl p-4 text-center">
+                  <Activity className="h-6 w-6 text-slate-300 mb-1" />
+                  <span className="text-xs font-bold text-slate-700">No profile views recorded yet</span>
+                  <span className="text-[11px] text-slate-400">Share your digital card link or tap NFC to generate real-time graph points.</span>
+                </div>
+              )}
 
               <div className="flex justify-between text-xs font-semibold text-slate-400 pt-3 px-1 border-t border-slate-100 mt-2">
-                <span>12 May</span>
-                <span>13 May</span>
-                <span>14 May</span>
-                <span>15 May</span>
-                <span>16 May</span>
-                <span>17 May</span>
-                <span>18 May</span>
+                {Array.from({ length: 7 }).map((_, i) => {
+                  const d = new Date();
+                  d.setDate(d.getDate() - (6 - i));
+                  return (
+                    <span key={i}>
+                      {d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -274,27 +269,32 @@ const DashboardHome = () => {
                 <span>Top Locations</span>
               </h4>
 
-              <div className="space-y-4">
-                {[
-                  { city: 'Delhi', count: 324, pct: '75%' },
-                  { city: 'Mumbai', count: 210, pct: '55%' },
-                  { city: 'Bengaluru', count: 156, pct: '40%' },
-                  { city: 'Hyderabad', count: 98, pct: '28%' },
-                ].map((loc, idx) => (
-                  <div key={idx} className="space-y-1.5">
-                    <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-slate-700">{loc.city}</span>
-                      <span className="text-indigo-600 font-mono font-bold">{loc.count}</span>
+              {stats.views > 0 ? (
+                <div className="space-y-4">
+                  {[
+                    { city: 'India', count: stats.views, pct: '100%' },
+                  ].map((loc, idx) => (
+                    <div key={idx} className="space-y-1.5">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span className="text-slate-700">{loc.city}</span>
+                        <span className="text-indigo-600 font-mono font-bold">{loc.count}</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-indigo-600 rounded-full"
+                          style={{ width: loc.pct }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-indigo-600 rounded-full"
-                        style={{ width: loc.pct }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-8 text-center space-y-1 text-slate-400">
+                  <MapPin className="h-6 w-6 text-slate-300 mx-auto" />
+                  <p className="text-xs font-semibold text-slate-600">No Location Data Yet</p>
+                  <p className="text-[11px] text-slate-400">Scan card to track visitor locations.</p>
+                </div>
+              )}
             </div>
 
             {/* Top Actions */}
@@ -304,56 +304,51 @@ const DashboardHome = () => {
                 <span>Top Actions</span>
               </h4>
 
-              <div className="flex items-center justify-around my-2">
-                <div className="relative w-28 h-28 flex items-center justify-center">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="#f1f5f9"
-                      strokeWidth="3.8"
-                    />
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="#10b981"
-                      strokeWidth="3.8"
-                      strokeDasharray="45, 100"
-                    />
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="#6366f1"
-                      strokeWidth="3.8"
-                      strokeDasharray="25, 100"
-                      strokeDashoffset="-45"
-                    />
-                  </svg>
-                  <div className="absolute text-center">
-                    <span className="text-lg font-extrabold text-slate-900">45%</span>
-                    <span className="text-[9px] text-slate-400 block font-semibold">WhatsApp</span>
+              {((stats.topActions?.whatsApp || 0) + (stats.topActions?.call || 0) + (stats.topActions?.email || 0) + (stats.topActions?.website || 0)) > 0 ? (
+                <div className="flex items-center justify-around my-2">
+                  <div className="relative w-28 h-28 flex items-center justify-center">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                      <path
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="#f1f5f9"
+                        strokeWidth="3.8"
+                      />
+                    </svg>
+                    <div className="absolute text-center">
+                      <span className="text-lg font-extrabold text-slate-900">
+                        {(stats.topActions?.whatsApp || 0) + (stats.topActions?.call || 0) + (stats.topActions?.email || 0) + (stats.topActions?.website || 0)}
+                      </span>
+                      <span className="text-[9px] text-slate-400 block font-semibold">Total Actions</span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2 text-xs font-semibold">
-                  <div className="flex items-center space-x-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                    <span className="text-slate-700">WhatsApp (45%)</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-indigo-500"></span>
-                    <span className="text-slate-700">Call (25%)</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-purple-500"></span>
-                    <span className="text-slate-700">Email (15%)</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-sky-500"></span>
-                    <span className="text-slate-700">Website (15%)</span>
+                  <div className="space-y-2 text-xs font-semibold">
+                    <div className="flex items-center space-x-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                      <span className="text-slate-700">WhatsApp ({stats.topActions?.whatsApp || 0})</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-indigo-500"></span>
+                      <span className="text-slate-700">Call ({stats.topActions?.call || 0})</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-purple-500"></span>
+                      <span className="text-slate-700">Email ({stats.topActions?.email || 0})</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-sky-500"></span>
+                      <span className="text-slate-700">Website ({stats.topActions?.website || 0})</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="py-8 text-center space-y-1 text-slate-400">
+                  <Activity className="h-6 w-6 text-slate-300 mx-auto" />
+                  <p className="text-xs font-semibold text-slate-600">No Button Clicks Yet</p>
+                  <p className="text-[11px] text-slate-400">Actions will track when visitors call, WhatsApp or email you.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -377,31 +372,41 @@ const DashboardHome = () => {
             </div>
 
             {/* Visitor Cards */}
-            <div className="space-y-3.5">
-              {activities.map((act, idx) => (
-                <div
-                  key={idx}
-                  className="bg-slate-50/80 border border-slate-200/80 p-3.5 rounded-2xl flex items-center justify-between space-x-3 hover:bg-slate-100/60 transition-all"
-                >
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <div className="h-9 w-9 rounded-full bg-indigo-100 text-indigo-700 font-extrabold text-xs flex items-center justify-center shrink-0 border border-indigo-200">
-                      {act.visitorName.charAt(0)}
+            {activities.length > 0 ? (
+              <div className="space-y-3.5">
+                {activities.map((act, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-slate-50/80 border border-slate-200/80 p-3.5 rounded-2xl flex items-center justify-between space-x-3 hover:bg-slate-100/60 transition-all"
+                  >
+                    <div className="flex items-center space-x-3 min-w-0">
+                      <div className="h-9 w-9 rounded-full bg-indigo-100 text-indigo-700 font-extrabold text-xs flex items-center justify-center shrink-0 border border-indigo-200">
+                        {act.visitorName.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <h5 className="text-xs font-bold text-slate-900 truncate">{act.visitorName}</h5>
+                        <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-md border mt-0.5 truncate ${act.badgeBg}`}>
+                          {act.action}
+                        </span>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <h5 className="text-xs font-bold text-slate-900 truncate">{act.visitorName}</h5>
-                      <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-md border mt-0.5 truncate ${act.badgeBg}`}>
-                        {act.action}
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="text-right shrink-0">
-                    <span className="text-[10px] font-mono font-medium text-slate-400 block">{act.time}</span>
-                    <span className="text-[9px] text-slate-500 block">{act.location}</span>
+                    <div className="text-right shrink-0">
+                      <span className="text-[10px] font-mono font-medium text-slate-400 block">{act.time}</span>
+                      <span className="text-[9px] text-slate-500 block">{act.location}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center space-y-2 border border-dashed border-slate-200 rounded-2xl p-5">
+                <Activity className="h-8 w-8 text-emerald-500/80 mx-auto animate-pulse" />
+                <p className="text-xs font-bold text-slate-800">No Live Activity Yet</p>
+                <p className="text-[11px] text-slate-500 max-w-xs mx-auto leading-relaxed">
+                  When visitors view your card, tap your NFC card, or connect with you, live activity events will appear here in real-time!
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="pt-4 border-t border-slate-100 mt-6 text-center">

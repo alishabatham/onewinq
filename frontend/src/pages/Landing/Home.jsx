@@ -94,17 +94,11 @@ const Home = () => {
             {/* HERO LEFT COLUMN */}
             <div className="lg:col-span-6 text-left space-y-7">
               
-              {/* Pill Badge */}
-              <div className="inline-flex items-center space-x-2 bg-white border border-[#6344F5]/20 px-4 py-1.5 rounded-full shadow-sm">
-                <Sparkles className="h-4 w-4 text-[#6344F5]" />
-                <span className="text-[#6344F5] text-xs font-semibold tracking-wide">The Modern Identity Layer</span>
-              </div>
-
               {/* Main Heading */}
-              <h1 className="text-3xl sm:text-5xl lg:text-[66px] font-extrabold tracking-tight text-slate-950 leading-[1.08] sm:leading-[1.06]">
+              <h1 className="text-3xl sm:text-5xl lg:text-[64px] font-semibold tracking-tight text-slate-900 leading-[1.1]">
                 Everything <br />
                 About You. <br />
-                <span className="text-[#6344F5]">In One Tap.</span>
+                <span className="text-[#6344F5] font-bold">In One Tap.</span>
               </h1>
 
               {/* Subheading */}
@@ -394,73 +388,85 @@ const Home = () => {
             </Link>
           </div>
 
-          {/* 6 Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* 6 Features Grid - All in 1 row on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
             
             {/* 1. Digital Profile */}
-            <div className="p-8 rounded-2xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-4 hover:shadow-md">
-              <div className="w-12 h-12 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <User className="h-6 w-6" />
+            <div className="p-4 rounded-xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <User className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">Digital Profile</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Create a beautiful profile that represents you and your work.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-slate-950">Digital Profile</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                Create a beautiful profile that represents you and your work.
-              </p>
             </div>
 
             {/* 2. NFC Card */}
-            <div className="p-8 rounded-2xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-4 hover:shadow-md">
-              <div className="w-12 h-12 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <Wifi className="h-6 w-6" />
+            <div className="p-4 rounded-xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <Wifi className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">NFC Card</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Share instantly with a tap. Works anywhere, on any device.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-slate-950">NFC Card</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                Share instantly with a tap. Works anywhere, on any device.
-              </p>
             </div>
 
             {/* 3. AI Assistant */}
-            <div className="p-8 rounded-2xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-4 hover:shadow-md">
-              <div className="w-12 h-12 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <Sparkles className="h-6 w-6" />
+            <div className="p-4 rounded-xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">AI Assistant</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Let AI write about you, create summaries and generate content.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-slate-950">AI Assistant</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                Let AI write about you, create summaries and generate content.
-              </p>
             </div>
 
             {/* 4. Analytics */}
-            <div className="p-8 rounded-2xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-4 hover:shadow-md">
-              <div className="w-12 h-12 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <BarChart3 className="h-6 w-6" />
+            <div className="p-4 rounded-xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <BarChart3 className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">Analytics</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Track views, taps, clicks and connections in real time.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-slate-950">Analytics</h3>
-              <p className="text-slate-[#64748B] text-sm leading-relaxed">
-                Track views, taps, clicks and connections in real time.
-              </p>
             </div>
 
             {/* 5. Universal Profile */}
-            <div className="p-8 rounded-2xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-4 hover:shadow-md">
-              <div className="w-12 h-12 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <Globe className="h-6 w-6" />
+            <div className="p-4 rounded-xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <Globe className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">Universal Profile</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  One link for everything. Works globally, across every platform.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-slate-950">Universal Profile</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                One link for everything. Works globally, across every platform.
-              </p>
             </div>
 
             {/* 6. Beautiful Templates */}
-            <div className="p-8 rounded-2xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-4 hover:shadow-md">
-              <div className="w-12 h-12 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <Palette className="h-6 w-6" />
+            <div className="p-4 rounded-xl bg-[#F8F9FA] border border-slate-100 hover:border-slate-200 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <Palette className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">Beautiful Templates</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Professionally designed templates for every profession.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-slate-950">Beautiful Templates</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                Professionally designed templates for every profession.
-              </p>
             </div>
 
           </div>
@@ -748,73 +754,85 @@ const Home = () => {
             </Link>
           </div>
 
-          {/* 6 Profession Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* 6 Profession Cards Grid - All in 1 row on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
             
             {/* Card 1: Founder */}
-            <div className="p-7 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-3 shadow-sm hover:shadow-md">
-              <div className="w-10 h-10 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <User className="h-5 w-5" />
+            <div className="p-4 rounded-xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <User className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">Founder</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Build your personal brand and connect with investors.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-slate-950">Founder</h3>
-              <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-                Build your personal brand and connect with investors.
-              </p>
             </div>
 
             {/* Card 2: Freelancer */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-3 shadow-sm hover:shadow-md">
-              <div className="w-10 h-10 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <Laptop className="h-5 w-5" />
+            <div className="p-4 rounded-xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <Laptop className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">Freelancer</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Share your portfolio and get more clients.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-slate-950">Freelancer</h3>
-              <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-                Share your portfolio and get more clients.
-              </p>
             </div>
 
             {/* Card 3: Employee */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-3 shadow-sm hover:shadow-md">
-              <div className="w-10 h-10 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <Briefcase className="h-5 w-5" />
+            <div className="p-4 rounded-xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <Briefcase className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">Employee</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Network internally and represent your work.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-slate-950">Employee</h3>
-              <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-                Network internally and represent your work.
-              </p>
             </div>
 
             {/* Card 4: Student */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-3 shadow-sm hover:shadow-md">
-              <div className="w-10 h-10 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <GraduationCap className="h-5 w-5" />
+            <div className="p-4 rounded-xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <GraduationCap className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">Student</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Showcase your projects and achievements.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-slate-950">Student</h3>
-              <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-                Showcase your projects and achievements.
-              </p>
             </div>
 
             {/* Card 5: Company */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-3 shadow-sm hover:shadow-md">
-              <div className="w-10 h-10 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <Building2 className="h-5 w-5" />
+            <div className="p-4 rounded-xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <Building2 className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">Company</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Manage your team and share company profile.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-slate-950">Company</h3>
-              <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-                Manage your team and share company profile.
-              </p>
             </div>
 
             {/* Card 6: Creator */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-3 shadow-sm hover:shadow-md">
-              <div className="w-10 h-10 rounded-xl bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center">
-                <Camera className="h-5 w-5" />
+            <div className="p-4 rounded-xl bg-white border border-slate-200/80 hover:border-slate-300 transition-all text-left space-y-2 hover:shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-[#F4F0FF] text-[#6344F5] flex items-center justify-center mb-2.5">
+                  <Camera className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-950 mb-1">Creator</h3>
+                <p className="text-slate-500 text-xs leading-snug">
+                  Share your content and grow your audience.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-slate-950">Creator</h3>
-              <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-                Share your content and grow your audience.
-              </p>
             </div>
 
           </div>

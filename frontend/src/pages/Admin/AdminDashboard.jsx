@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../context/AuthContext';
 import { 
-  Users, CreditCard, Eye, Zap, Percent, RefreshCw, AlertCircle
+  Users, CreditCard, Eye, Zap, RefreshCw, AlertCircle, ShoppingBag, Clock, ArrowRight, ShieldCheck
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -15,6 +16,7 @@ const AdminDashboard = () => {
   }, []);
 
   const fetchStats = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${API_URL}/admin/stats`);
       if (res.data.success) {
@@ -30,29 +32,33 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-slate-500 space-y-3">
-        <RefreshCw className="h-7 w-7 text-indigo-650 animate-spin" />
-        <span className="text-sm font-medium">Loading stats...</span>
+      <div className="flex flex-col items-center justify-center h-64 text-slate-500 space-y-3 font-outfit">
+        <RefreshCw className="h-7 w-7 text-indigo-500 animate-spin" />
+        <span className="text-sm font-medium">Loading admin dashboard analytics...</span>
       </div>
     );
   }
 
   const usersCount = stats?.totalUsers || 0;
   const cardsCount = stats?.totalCards || 0;
+  const ordersCount = stats?.totalOrders || 0;
+  const pendingOrdersCount = stats?.pendingOrders || 0;
   const viewsCount = stats?.totalViews || 0;
   const tapsCount = stats?.totalTaps || 0;
   const ttr = viewsCount > 0 ? Math.round((tapsCount / viewsCount) * 100) : 0;
 
   return (
-    <div className="space-y-6 text-left text-slate-100">
+    <div className="space-y-6 text-left text-slate-100 font-outfit">
+      
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white font-outfit">Admin Panel Stats</h1>
-          <p className="text-sm text-slate-400 mt-1">Global statistics overview of the OneWinq system.</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Admin Command Center</h1>
+          <p className="text-sm text-slate-400 mt-1">Real-time statistics overview of users, physical NFC card orders, and system analytics.</p>
         </div>
         <button
           onClick={fetchStats}
-          className="p-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors shadow-xs cursor-pointer"
+          className="p-2.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors shadow-xs cursor-pointer"
           title="Refresh Stats"
         >
           <RefreshCw className="h-4 w-4" />
@@ -60,83 +66,123 @@ const AdminDashboard = () => {
       </div>
 
       {error && (
-        <div className="bg-red-950/30 border border-red-900 text-red-400 p-3 rounded-lg flex items-start space-x-2 text-xs">
-          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+        <div className="bg-red-950/30 border border-red-900 text-red-400 p-3.5 rounded-xl flex items-center space-x-2 text-xs">
+          <AlertCircle className="h-5 w-5 shrink-0" />
           <span>{error}</span>
+        </div>
+      )}
+
+      {/* Live Pending Orders Alert Banner */}
+      {pendingOrdersCount > 0 && (
+        <div className="bg-gradient-to-r from-purple-950/90 via-slate-900 to-slate-900 border-2 border-purple-500/60 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center space-x-4 text-left">
+            <div className="w-12 h-12 rounded-2xl bg-purple-600/30 border border-purple-500/40 flex items-center justify-center shrink-0 animate-bounce">
+              <ShoppingBag className="h-6 w-6 text-purple-300" />
+            </div>
+            <div>
+              <h3 className="text-base font-extrabold text-white">
+                You have {pendingOrdersCount} Pending Card {pendingOrdersCount === 1 ? 'Order' : 'Orders'}!
+              </h3>
+              <p className="text-xs text-slate-300 mt-0.5">
+                New customer orders placed from the Pricing page need fulfillment approval.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            to="/admin/orders"
+            className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition-all shadow-md shadow-purple-600/20 inline-flex items-center space-x-2 shrink-0 cursor-pointer"
+          >
+            <span>Process Orders</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       )}
 
       {/* Grid of stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Users */}
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center justify-between shadow-xs">
+        
+        {/* Orders Card */}
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-xs hover:border-slate-700 transition-all">
           <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Total Users</span>
-            <span className="text-3xl font-extrabold text-white">{usersCount}</span>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Card Orders</span>
+            <div className="flex items-baseline space-x-2">
+              <span className="text-3xl font-black text-white">{ordersCount}</span>
+              {pendingOrdersCount > 0 && (
+                <span className="text-xs font-bold text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full">
+                  {pendingOrdersCount} pending
+                </span>
+              )}
+            </div>
           </div>
-          <div className="bg-indigo-950/50 text-indigo-400 p-3 rounded-lg border border-indigo-900/30">
+          <div className="bg-purple-950/50 text-purple-400 p-3 rounded-xl border border-purple-900/30">
+            <ShoppingBag className="h-5 w-5" />
+          </div>
+        </div>
+
+        {/* Users Card */}
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-xs hover:border-slate-700 transition-all">
+          <div>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Registered Users</span>
+            <span className="text-3xl font-black text-white">{usersCount}</span>
+          </div>
+          <div className="bg-indigo-950/50 text-indigo-400 p-3 rounded-xl border border-indigo-900/30">
             <Users className="h-5 w-5" />
           </div>
         </div>
 
-        {/* Cards */}
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center justify-between shadow-xs">
+        {/* Generated Cards */}
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-xs hover:border-slate-700 transition-all">
           <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Generated Cards</span>
-            <span className="text-3xl font-extrabold text-white">{cardsCount}</span>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">NFC Cards Generated</span>
+            <span className="text-3xl font-black text-white">{cardsCount}</span>
           </div>
-          <div className="bg-violet-950/50 text-violet-400 p-3 rounded-lg border border-violet-900/30">
+          <div className="bg-violet-950/50 text-violet-400 p-3 rounded-xl border border-violet-900/30">
             <CreditCard className="h-5 w-5" />
           </div>
         </div>
 
-        {/* Views */}
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center justify-between shadow-xs">
+        {/* NFC Taps */}
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-xs hover:border-slate-700 transition-all">
           <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Total Views</span>
-            <span className="text-3xl font-extrabold text-white">{viewsCount}</span>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Total NFC Scans</span>
+            <span className="text-3xl font-black text-white">{tapsCount}</span>
           </div>
-          <div className="bg-blue-950/50 text-blue-400 p-3 rounded-lg border border-blue-900/30">
-            <Eye className="h-5 w-5" />
-          </div>
-        </div>
-
-        {/* Taps */}
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center justify-between shadow-xs">
-          <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Total NFC Taps</span>
-            <span className="text-3xl font-extrabold text-white">{tapsCount}</span>
-          </div>
-          <div className="bg-emerald-950/50 text-emerald-400 p-3 rounded-lg border border-emerald-900/30">
+          <div className="bg-emerald-950/50 text-emerald-400 p-3 rounded-xl border border-emerald-900/30">
             <Zap className="h-5 w-5" />
           </div>
         </div>
+
       </div>
 
-      {/* Visual Rate */}
-      <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xs">
-        <h3 className="font-bold text-white mb-2 text-sm sm:text-base">Global System Conversion Rate (TTR)</h3>
-        <p className="text-xs text-slate-400 mb-6">Percentage of total visits triggered via direct physical NFC card scans.</p>
-
-        <div className="space-y-4">
+      {/* Visual Conversion Rate */}
+      <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xs space-y-4">
+        <div className="flex justify-between items-start">
           <div>
-            <div className="flex justify-between text-xs font-semibold text-slate-400 mb-2">
-              <span>Card Taps ({tapsCount})</span>
-              <span>Conversion Rate ({ttr}%)</span>
-            </div>
-            <div className="h-3 w-full bg-slate-950 rounded-full overflow-hidden flex">
-              <div
-                style={{ width: `${ttr}%` }}
-                className="bg-indigo-650 h-full transition-all"
-              ></div>
-              <div
-                style={{ width: `${100 - ttr}%` }}
-                className="bg-slate-800 h-full transition-all"
-              ></div>
-            </div>
+            <h3 className="font-extrabold text-white text-base">NFC Tap Conversion Rate (TTR)</h3>
+            <p className="text-xs text-slate-400 mt-0.5">Percentage of profile traffic generated directly via physical NFC card taps.</p>
+          </div>
+          <span className="text-2xl font-black text-indigo-400">{ttr}%</span>
+        </div>
+
+        <div>
+          <div className="flex justify-between text-xs font-semibold text-slate-400 mb-2">
+            <span>Direct Card Taps ({tapsCount})</span>
+            <span>Total Profile Views ({viewsCount})</span>
+          </div>
+          <div className="h-3 w-full bg-slate-950 rounded-full overflow-hidden flex">
+            <div
+              style={{ width: `${ttr}%` }}
+              className="bg-indigo-600 h-full transition-all"
+            ></div>
+            <div
+              style={{ width: `${100 - ttr}%` }}
+              className="bg-slate-800 h-full transition-all"
+            ></div>
           </div>
         </div>
       </div>
+
     </div>
   );
 };

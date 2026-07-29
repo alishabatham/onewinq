@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Profile = require('../models/Profile');
 const Card = require('../models/Card');
 const Analytics = require('../models/Analytics');
+const Order = require('../models/Order');
 
 // Apply protection and admin filters to all admin routes
 router.use(protect);
@@ -18,6 +19,8 @@ router.get('/stats', async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalCards = await Card.countDocuments();
+    const totalOrders = await Order.countDocuments();
+    const pendingOrders = await Order.countDocuments({ status: 'Pending' });
     
     // Aggregate views and taps
     const analyticsList = await Analytics.find();
@@ -33,6 +36,8 @@ router.get('/stats', async (req, res) => {
       stats: {
         totalUsers,
         totalCards,
+        totalOrders,
+        pendingOrders,
         totalViews,
         totalTaps,
       },
@@ -210,6 +215,97 @@ router.post('/cards/unlink/:cardId', async (req, res) => {
     await card.save();
 
     res.json({ success: true, message: 'Card unlinked successfully by admin' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @desc    Get All Orders
+// @route   GET /api/admin/orders
+// @access  Private/Admin
+router.get('/orders', async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, orders });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @desc    Get Admin Notifications (Unread Order Alerts)
+// @route   GET /api/admin/notifications
+// @access  Private/Admin
+router.get('/notifications', async (req, res) => {
+  try {
+    const unreadCount = await Order.countDocuments({ isReadByAdmin: false });
+    const pendingCount = await Order.countDocuments({ status: 'Pending' });
+    const recentOrders = await Order.find()
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    res.json({
+      success: true,
+      unreadCount,
+      pendingCount,
+      recentOrders,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @desc    Update Order Status
+// @route   PUT /api/admin/orders/:id/status
+// @access  Private/Admin
+router.put('/orders/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    order.status = status;
+    order.isReadByAdmin = true;
+    await order.save();
+
+    res.json({ success: true, message: `Order status updated to ${status}`, order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @desc    Mark All Notifications Read
+// @route   PUT /api/admin/notifications/mark-read
+// @access  Private/Admin
+router.put('/notifications/mark-read', async (req, res) => {
+  try {
+    await Order.updateMany({ isReadByAdmin: false }, { isReadByAdmin: true });
+    res.json({ success: true, message: 'All order notifications marked as read' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @desc    Delete Order
+// @route   DELETE /api/admin/orders/:id
+// @access  Private/Admin
+router.delete('/orders/:id', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    await Order.deleteOne({ _id: req.params.id });
+    res.json({ success: true, message: 'Order deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });

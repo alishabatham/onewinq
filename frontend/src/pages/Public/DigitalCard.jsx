@@ -179,20 +179,20 @@ const DigitalCard = () => {
 
   if (loading) {
     return (
-      <div className="bg-slate-50 text-slate-800 min-h-screen flex flex-col items-center justify-center">
+      <div className="bg-slate-50 text-slate-900 min-h-screen flex flex-col items-center justify-center">
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-indigo-600 mb-2"></div>
-        <span className="text-sm text-slate-550">Loading digital profile...</span>
+        <span className="text-sm font-semibold text-black">Loading digital profile...</span>
       </div>
     );
   }
 
   if (cardStatus === 'paused') {
     return (
-      <div className="bg-slate-50 text-slate-800 min-h-screen flex flex-col items-center justify-center p-6 text-center">
+      <div className="bg-slate-50 text-slate-900 min-h-screen flex flex-col items-center justify-center p-6 text-center">
         <div className="bg-white p-8 rounded-2xl border border-slate-200 max-w-sm space-y-4 shadow-sm">
           <ShieldAlert className="h-16 w-16 text-amber-500 mx-auto" />
-          <h2 className="text-2xl font-bold text-slate-900">Card Paused</h2>
-          <p className="text-slate-550 text-sm leading-relaxed">
+          <h2 className="text-2xl font-bold text-black">Card Paused</h2>
+          <p className="text-slate-900 text-sm leading-relaxed">
             This digital card profile has been temporarily paused by its owner. Please try scanning later.
           </p>
         </div>
@@ -202,7 +202,7 @@ const DigitalCard = () => {
 
   if (!linked) {
     return (
-      <div className="bg-slate-50 text-slate-800 min-h-screen py-10 px-4 flex flex-col justify-center items-center relative font-outfit">
+      <div className="bg-slate-50 text-slate-900 min-h-screen py-10 px-4 flex flex-col justify-center items-center relative font-outfit">
         {/* Background radial effects */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-80 h-80 bg-indigo-650/5 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -215,13 +215,13 @@ const DigitalCard = () => {
             <CreditCard className="h-10 w-10 text-indigo-600 animate-pulse" />
           </div>
 
-          <h2 className="text-2xl font-bold text-slate-900 leading-tight">Activate Your Card</h2>
-          <p className="text-slate-550 text-sm mt-3 leading-relaxed max-w-xs">
+          <h2 className="text-2xl font-bold text-black leading-tight">Activate Your Card</h2>
+          <p className="text-slate-900 text-sm mt-3 leading-relaxed max-w-xs">
             This OneWinq smart business card has not been activated yet. Link it to your profile to start networking instantly.
           </p>
 
           <div className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 mt-6 text-left">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Card Identifier</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Card Identifier</span>
             <span className="font-mono text-sm font-bold text-indigo-600 block">{cardId}</span>
           </div>
 
@@ -235,8 +235,8 @@ const DigitalCard = () => {
           {user ? (
             /* Logged in Claim View */
             <div className="mt-8 w-full space-y-3">
-              <p className="text-xs text-slate-500">
-                Logged in as <span className="font-bold text-slate-800">{user.name}</span> ({user.email})
+              <p className="text-xs text-slate-800">
+                Logged in as <span className="font-bold text-black">{user.name}</span> ({user.email})
               </p>
               <button
                 onClick={handleClaimCard}
@@ -254,7 +254,7 @@ const DigitalCard = () => {
               </button>
               <Link
                 to="/dashboard"
-                className="w-full block bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-xl text-sm transition-all"
+                className="w-full block bg-slate-100 hover:bg-slate-200 text-black font-bold py-3.5 rounded-xl text-sm transition-all"
               >
                 Go to Dashboard
               </Link>
@@ -270,7 +270,7 @@ const DigitalCard = () => {
               </Link>
               <Link
                 to={`/signup?claim=${cardId}`}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-xl text-center transition-all text-sm flex items-center justify-center space-x-1.5"
+                className="bg-slate-100 hover:bg-slate-200 text-black font-bold py-3.5 rounded-xl text-center transition-all text-sm flex items-center justify-center space-x-1.5"
               >
                 <span>Sign Up</span>
               </Link>
@@ -279,9 +279,9 @@ const DigitalCard = () => {
 
           {/* Footer Brand */}
           <div className="mt-8 text-center border-t border-slate-100 pt-5 w-full">
-            <span className="text-[10px] text-slate-400 flex items-center justify-center space-x-1.5">
+            <span className="text-[10px] text-slate-600 flex items-center justify-center space-x-1.5">
               <CreditCard className="h-3 w-3" />
-              <span>Powered by <span className="font-bold text-slate-500">OneWinq Digital</span></span>
+              <span>Powered by <span className="font-bold text-black">OneWinq Digital</span></span>
             </span>
           </div>
         </div>
@@ -291,11 +291,11 @@ const DigitalCard = () => {
 
   if (error || !profile) {
     return (
-      <div className="bg-slate-50 text-slate-800 min-h-screen flex flex-col items-center justify-center p-6 text-center">
+      <div className="bg-slate-50 text-slate-900 min-h-screen flex flex-col items-center justify-center p-6 text-center">
         <div className="bg-white p-8 rounded-2xl border border-slate-200 max-w-sm space-y-4 shadow-sm">
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto" />
-          <h2 className="text-2xl font-bold text-slate-900">Profile Missing</h2>
-          <p className="text-slate-550 text-sm leading-relaxed">
+          <h2 className="text-2xl font-bold text-black">Profile Missing</h2>
+          <p className="text-slate-900 text-sm leading-relaxed">
             {error || 'The digital card profile you requested could not be found or is not linked yet.'}
           </p>
         </div>
@@ -314,6 +314,9 @@ const DigitalCard = () => {
         profile={profile}
         templateIdOverride={templatePreviewParam || profile.templateId}
         onSaveContact={handleSaveContact}
+        onConnectSuccess={(newCount) => {
+          setProfile(prev => prev ? ({ ...prev, totalConnections: newCount, connectionsCount: `${newCount}` }) : prev);
+        }}
         isPreview={false}
       />
     </div>

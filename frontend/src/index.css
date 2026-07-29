@@ -20,6 +20,18 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
 }
 
+.font-jakarta {
+  font-family: 'Plus Jakarta Sans', 'Outfit', system-ui, sans-serif !important;
+}
+
+.font-outfit {
+  font-family: 'Outfit', system-ui, sans-serif !important;
+}
+
+.font-grotesk {
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+}
+
 .font-playfair {
   font-family: 'Playfair Display', Georgia, serif !important;
 }

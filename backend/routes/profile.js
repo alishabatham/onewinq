@@ -6,6 +6,7 @@ const fs = require('fs');
 const cloudinary = require('cloudinary').v2;
 const { protect } = require('../middleware/authMiddleware');
 const Profile = require('../models/Profile');
+const Connection = require('../models/Connection');
 
 // Configure Local Multer Storage
 const storage = multer.diskStorage({
@@ -160,7 +161,9 @@ router.put('/me', protect, async (req, res) => {
     if (req.body.achievements !== undefined) profile.achievements = req.body.achievements;
     if (req.body.companiesBuilt !== undefined) profile.companiesBuilt = req.body.companiesBuilt;
     if (req.body.connectionsCount !== undefined) profile.connectionsCount = req.body.connectionsCount;
+    if (req.body.totalConnections !== undefined) profile.totalConnections = req.body.totalConnections;
     if (req.body.experienceLabel !== undefined) profile.experienceLabel = req.body.experienceLabel;
+
     if (req.body.connectionsLabel !== undefined) profile.connectionsLabel = req.body.connectionsLabel;
     if (req.body.companiesLabel !== undefined) profile.companiesLabel = req.body.companiesLabel;
     if (req.body.skills !== undefined) profile.skills = req.body.skills;
@@ -194,6 +197,31 @@ router.put('/me', protect, async (req, res) => {
     res.json({ success: true, profile });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @desc    Get user's incoming connections
+// @route   GET /api/profile/connections
+// @access  Private
+router.get('/connections', protect, async (req, res) => {
+  try {
+    const connections = await Connection.find({
+      $or: [{ cardOwner: req.user._id }, { connectedUser: req.user._id }]
+    })
+      .sort({ createdAt: -1 })
+      .populate('cardOwner', 'name email profilePhoto designation companyName')
+      .populate('connectedUser', 'name email profilePhoto designation companyName');
+
+    const total = connections.length;
+
+    res.json({
+      success: true,
+      total,
+      connections,
+    });
+  } catch (error) {
+    console.error('Error fetching connections:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

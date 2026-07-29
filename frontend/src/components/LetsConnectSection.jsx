@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { usePWA } from '../context/PWAContext';
 
-const LetsConnectSection = ({ profile, onSaveContact, isPreview = false }) => {
+const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview = false }) => {
   const { triggerInstall, isInstalled } = usePWA();
   const [activeModal, setActiveModal] = useState(null); // 'meeting' | 'brochure' | 'services' | 'video'
   const [meetingSubmitted, setMeetingSubmitted] = useState(false);
@@ -15,6 +15,10 @@ const LetsConnectSection = ({ profile, onSaveContact, isPreview = false }) => {
     if (!num) return '';
     return num.replace(/[^+\d]/g, '');
   };
+
+  const totalConnectionsCount = profile?.totalConnections !== undefined 
+    ? profile.totalConnections 
+    : (parseInt(profile?.connectionsCount) || 0);
 
   const servicesList = profile?.services && profile.services.length > 0 ? profile.services : [
     { title: 'Digital Business Solutions', description: 'NFC smart identity, enterprise web & cloud infrastructure.', icon: 'Zap' },
@@ -142,6 +146,27 @@ const LetsConnectSection = ({ profile, onSaveContact, isPreview = false }) => {
         <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest px-1 pb-1">Let's Connect</h3>
 
         <div className="space-y-2.5">
+          {/* Option 0: Connect & Exchange Info */}
+          {onOpenConnect && (
+            <button
+              onClick={onOpenConnect}
+              className="w-full bg-[#6344F5]/10 hover:bg-[#6344F5]/15 border border-[#6344F5]/30 p-3.5 rounded-2xl flex items-center justify-between group transition-all cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="h-10 w-10 rounded-xl bg-[#6344F5] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#6344F5]/30">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div className="text-left">
+                  <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#6344F5] transition-colors">Connect with Me</h4>
+                  <p className="text-[10px] text-slate-500">
+                    Join <span className="font-bold text-[#6344F5]">{totalConnectionsCount}</span> connected professionals
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-[#6344F5] group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          )}
+
           {/* Option 1: Book a Meeting */}
           <button
             onClick={() => setActiveModal('meeting')}

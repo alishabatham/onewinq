@@ -25,6 +25,7 @@ import DashboardHome from './pages/Dashboard/DashboardHome';
 import Profile from './pages/Dashboard/Profile';
 import MyCard from './pages/Dashboard/MyCard';
 import Analytics from './pages/Dashboard/Analytics';
+import Connections from './pages/Dashboard/Connections';
 import Settings from './pages/Dashboard/Settings';
 
 // Admin Pages
@@ -32,6 +33,7 @@ import AdminLayout from './pages/Admin/AdminLayout';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminUsers from './pages/Admin/AdminUsers';
 import AdminCards from './pages/Admin/AdminCards';
+import AdminOrders from './pages/Admin/AdminOrders';
 
 // Public Page
 import DigitalCard from './pages/Public/DigitalCard';
@@ -105,6 +107,7 @@ function App() {
               <Route index element={<DashboardHome />} />
               <Route path="profile" element={<Profile />} />
               <Route path="mycard" element={<MyCard />} />
+              <Route path="connections" element={<Connections />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="settings" element={<Settings />} />
             </Route>
@@ -119,6 +122,7 @@ function App() {
               }
             >
               <Route index element={<AdminDashboard />} />
+              <Route path="orders" element={<AdminOrders />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="cards" element={<AdminCards />} />
             </Route>

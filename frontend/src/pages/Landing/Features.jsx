@@ -5,39 +5,39 @@ import { Sparkles, Eye, Download, ShieldCheck, ToggleLeft, Layers, ArrowRight } 
 const Features = () => {
   const featureList = [
     {
-      icon: <Sparkles className="h-6 w-6" />,
+      icon: <Sparkles className="h-4 w-4" />,
       title: "Beautiful Mobile Profile",
-      desc: "A custom profile with your photo, biography, designation, and contact details. Optimized for smartphones and designed to fit any business context.",
+      desc: "Custom profile with photo, bio, & contact details optimized for smartphones.",
       color: "brand"
     },
     {
-      icon: <Download className="h-6 w-6" />,
+      icon: <Download className="h-4 w-4" />,
       title: "vCard Contact Download",
-      desc: "Let clients add your details to their contacts instantly. When they click 'Save Contact', a pre-configured .vcf card downloads directly to their smartphone.",
+      desc: "Save details to contacts instantly with a single click .vcf download.",
       color: "violet"
     },
     {
-      icon: <Layers className="h-6 w-6" />,
-      title: "Company Brochure Integration",
-      desc: "Upload your company description, logo, and PDF brochure. Users can view your brochure directly on their phone, perfect for corporate clients.",
+      icon: <Layers className="h-4 w-4" />,
+      title: "Brochure Integration",
+      desc: "Upload company logo, description, and PDF brochure for clients.",
       color: "brand"
     },
     {
-      icon: <Eye className="h-6 w-6" />,
+      icon: <Eye className="h-4 w-4" />,
       title: "View & Tap Analytics",
-      desc: "Understand user engagement. Monitor how many views were standard links vs actual physical NFC taps. View the exact date and time of the last visit.",
+      desc: "Monitor views vs physical NFC taps and timestamp of last visits.",
       color: "violet"
     },
     {
-      icon: <ToggleLeft className="h-6 w-6" />,
+      icon: <ToggleLeft className="h-4 w-4" />,
       title: "Pause / Resume Card",
-      desc: "Lost your card or want to hide your details temporarily? Toggle your card status to 'paused' in the settings. Taps will display a secure message.",
+      desc: "Toggle card status to paused in settings to hide details securely.",
       color: "brand"
     },
     {
-      icon: <ShieldCheck className="h-6 w-6" />,
+      icon: <ShieldCheck className="h-4 w-4" />,
       title: "Secure JWT & Auth",
-      desc: "Your credentials are encrypted using industry-standard hashing. Manage your password, profile photos, and brochures safely in your private account dashboard.",
+      desc: "Credentials encrypted safely in your private account dashboard.",
       color: "violet"
     }
   ];
@@ -47,37 +47,37 @@ const Features = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
           <div className="inline-flex items-center space-x-2 bg-brand-light border border-brand/20 px-3.5 py-1 rounded-full text-brand text-xs font-bold uppercase tracking-wider">
             <span>Core Ecosystem</span>
           </div>
-          <h1 className="text-4xl font-extrabold text-slate-900 sm:text-5xl leading-tight">
+          <h1 className="text-3xl font-extrabold text-slate-900 sm:text-4xl leading-tight">
             Everything you need in a <span className="text-brand">Smart Card</span>
           </h1>
-          <p className="mt-4 text-sm sm:text-base text-slate-500 font-medium">
+          <p className="mt-2 text-xs sm:text-sm text-slate-500 font-medium">
             A beautiful mobile landing page for your profile, instantly shared with NFC tags.
           </p>
         </div>
 
-        {/* Grid of Features */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+        {/* Grid of Features - All 6 in 1 row on desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 mt-8">
           {featureList.map((f, i) => (
             <div 
               key={i} 
-              className="bg-white p-8 rounded-2xl border border-slate-200 hover:border-brand/45 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between text-left group hover:-translate-y-1"
+              className="bg-white p-4 rounded-xl border border-slate-200 hover:border-brand/45 shadow-xs hover:shadow-sm transition-all duration-300 flex flex-col justify-between text-left group"
             >
               <div>
-                <div className={`p-3 rounded-xl shrink-0 w-fit mb-6 transition-colors ${
+                <div className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center mb-2.5 transition-colors ${
                   f.color === 'brand' 
                     ? 'bg-brand-light text-brand border border-brand/10 group-hover:bg-brand group-hover:text-white' 
                     : 'bg-violet-50 text-violet-600 border border-violet-100 group-hover:bg-violet-600 group-hover:text-white'
                 }`}>
                   {f.icon}
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-3 group-hover:text-brand transition-colors">
+                <h3 className="text-sm font-bold text-slate-900 mb-1 group-hover:text-brand transition-colors">
                   {f.title}
                 </h3>
-                <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
+                <p className="text-slate-500 text-xs leading-snug">
                   {f.desc}
                 </p>
               </div>

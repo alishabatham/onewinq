@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
-  CreditCard, LayoutDashboard, User, BarChart2, Settings, LogOut, Menu, X, ArrowLeft
+  CreditCard, LayoutDashboard, User, Users, BarChart2, Settings, LogOut, Menu, X, ArrowLeft
 } from 'lucide-react';
 import Logo from '../../components/Logo';
 
@@ -21,6 +21,7 @@ const DashboardLayout = () => {
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'My Profile', path: '/dashboard/profile', icon: User },
     { name: 'My Card', path: '/dashboard/mycard', icon: CreditCard },
+    { name: 'Connections', path: '/dashboard/connections', icon: Users },
     { name: 'Analytics', path: '/dashboard/analytics', icon: BarChart2 },
     { name: 'Settings', path: '/dashboard/settings', icon: Settings },
   ];
@@ -38,7 +39,7 @@ const DashboardLayout = () => {
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-slate-200 shrink-0 h-screen sticky top-0 overflow-hidden">
         <div className="h-16 flex items-center px-6 border-b border-slate-200">
           <Link to="/" className="flex items-center">
-            <Logo className="h-7" />
+            <Logo className="h-10 sm:h-12" />
           </Link>
         </div>
 

@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
 const Analytics = require('../models/Analytics');
+const Connection = require('../models/Connection');
 
-// @desc    Get user card analytics
+// @desc    Get user card analytics (100% Real-time database metrics)
 // @route   GET /api/analytics
 // @access  Private
 router.get('/', protect, async (req, res) => {
@@ -12,49 +13,52 @@ router.get('/', protect, async (req, res) => {
     if (!analytics) {
       analytics = await Analytics.create({
         user: req.user._id,
-        totalTaps: 1246,
-        totalViews: 1450,
-        uniqueVisitors: 832,
-        leadsGenerated: 213,
-        lastVisit: new Date(),
+        totalTaps: 0,
+        totalViews: 0,
+        uniqueVisitors: 0,
+        leadsGenerated: 0,
+        lastVisit: null,
         topActions: {
-          whatsApp: 45,
-          call: 25,
-          email: 15,
-          website: 15,
-          brochure: 12,
-          meeting: 8,
+          whatsApp: 0,
+          call: 0,
+          email: 0,
+          website: 0,
+          brochure: 0,
+          meeting: 0,
         },
-        recentActivity: [
-          { visitorName: 'Amit Sharma', action: 'Viewed your profile', location: 'Delhi, India', timestamp: new Date(Date.now() - 1000 * 60 * 5) },
-          { visitorName: 'Priya Mehta', action: 'Clicked on WhatsApp', location: 'Mumbai, India', timestamp: new Date(Date.now() - 1000 * 60 * 25) },
-          { visitorName: 'John Doe', action: 'Downloaded Brochure', location: 'New York, USA', timestamp: new Date(Date.now() - 1000 * 60 * 50) },
-          { visitorName: 'Karan Verma', action: 'Viewed Services', location: 'Bengaluru, India', timestamp: new Date(Date.now() - 1000 * 60 * 90) },
-          { visitorName: 'Sneha Iyer', action: 'Clicked on Website', location: 'Hyderabad, India', timestamp: new Date(Date.now() - 1000 * 60 * 130) },
-        ],
+        recentActivity: [],
       });
-    } else {
-      // Ensure defaults for optional existing records
-      let updated = false;
-      if (!analytics.uniqueVisitors) { analytics.uniqueVisitors = 832; updated = true; }
-      if (!analytics.leadsGenerated) { analytics.leadsGenerated = 213; updated = true; }
-      if (!analytics.recentActivity || analytics.recentActivity.length === 0) {
-        analytics.recentActivity = [
-          { visitorName: 'Amit Sharma', action: 'Viewed your profile', location: 'Delhi, India', timestamp: new Date(Date.now() - 1000 * 60 * 5) },
-          { visitorName: 'Priya Mehta', action: 'Clicked on WhatsApp', location: 'Mumbai, India', timestamp: new Date(Date.now() - 1000 * 60 * 25) },
-          { visitorName: 'John Doe', action: 'Downloaded Brochure', location: 'New York, USA', timestamp: new Date(Date.now() - 1000 * 60 * 50) },
-          { visitorName: 'Karan Verma', action: 'Viewed Services', location: 'Bengaluru, India', timestamp: new Date(Date.now() - 1000 * 60 * 90) },
-          { visitorName: 'Sneha Iyer', action: 'Clicked on Website', location: 'Hyderabad, India', timestamp: new Date(Date.now() - 1000 * 60 * 130) },
-        ];
-        updated = true;
-      }
-      if (updated) {
-        await analytics.save();
-      }
     }
+
+    // Wipe legacy mock numbers if stored in existing MongoDB documents
+    if (analytics.uniqueVisitors >= 800 || analytics.totalViews >= 1400 || analytics.totalTaps >= 1200) {
+      analytics.totalTaps = 0;
+      analytics.totalViews = 0;
+      analytics.uniqueVisitors = 0;
+      analytics.recentActivity = [];
+    }
+
+    // Calculate real connection count from DB (both incoming & outgoing)
+    const realConnectionCount = await Connection.countDocuments({
+      $or: [{ cardOwner: req.user._id }, { connectedUser: req.user._id }]
+    });
+    analytics.leadsGenerated = realConnectionCount;
+
+    // Filter out old legacy mock activities
+    if (analytics.recentActivity && analytics.recentActivity.length > 0) {
+      analytics.recentActivity = analytics.recentActivity.filter(
+        a => !['Amit Sharma', 'Priya Mehta', 'John Doe', 'Karan Verma', 'Sneha Iyer'].includes(a.visitorName)
+      );
+    }
+
+    // Unique visitors equals real tracked views
+    analytics.uniqueVisitors = analytics.totalViews || 0;
+
+    await analytics.save();
+
     res.json({ success: true, analytics });
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching analytics:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

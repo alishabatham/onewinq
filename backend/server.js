@@ -41,6 +41,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/card', require('./routes/card'));
 app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/orders', require('./routes/order'));
 app.use('/api/admin', require('./routes/admin'));
 
 // Root endpoint for status check
