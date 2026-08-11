@@ -14,6 +14,8 @@ mongodb_data/
 .env.production.local
 backend/.env
 frontend/.env
+backend/.env.local
+frontend/.env.local
 
 # Production builds
 dist/

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import { API_URL, useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { createBackendRazorpayOrder, openRazorpayCheckout, verifyRazorpayPayment } from '../../utils/razorpay';
 import { 
   Sparkles, Check, ArrowRight, CreditCard, ShieldCheck, Globe, RefreshCw, 
   ShoppingCart, Briefcase, ChevronDown, ChevronUp, Star, Lock, Zap, Award, Layers, Sparkle, Loader2
@@ -33,6 +33,55 @@ const Pricing = () => {
     const el = document.getElementById('cards-section');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleProPlanCheckout = async () => {
+    try {
+      setOrderSubmitting(true);
+      const paymentOrder = await createBackendRazorpayOrder({
+        productType: 'pro_plan',
+        cardName: 'Pro Plan',
+        customerName: user?.name || 'OneWinq Customer',
+        phone: user?.phone || '+910000000000',
+        shippingAddress: 'Razorpay Checkout',
+        userId: user?._id || null,
+      });
+
+      await openRazorpayCheckout({
+        orderId: paymentOrder.orderId,
+        amount: paymentOrder.amount,
+        currency: paymentOrder.currency,
+        keyId: paymentOrder.keyId,
+        customerName: user?.name || 'OneWinq Customer',
+        phone: user?.phone || '',
+        email: user?.email || '',
+        onSuccess: async (response) => {
+          const verifyPayload = {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          };
+
+          const verifyRes = await verifyRazorpayPayment(verifyPayload);
+          if (verifyRes.success) {
+            setOrderSuccessMsg('Pro plan payment verified successfully.');
+          } else {
+            setOrderSuccessMsg('Payment verification failed.');
+          }
+        },
+        onFailure: (error) => {
+          setOrderSuccessMsg(error?.description || 'Payment failed.');
+        },
+        onCancel: () => {
+          setOrderSuccessMsg('Payment cancelled.');
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      setOrderSuccessMsg(error?.response?.data?.message || error?.message || 'Payment setup failed.');
+    } finally {
+      setOrderSubmitting(false);
     }
   };
 
@@ -310,13 +359,14 @@ const Pricing = () => {
                 </ul>
               </div>
 
-              <Link
-                to="/signup?plan=pro"
+              <button
+                onClick={handleProPlanCheckout}
+                disabled={orderSubmitting}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3.5 rounded-xl font-extrabold text-center text-xs sm:text-sm transition-all shadow-md shadow-purple-600/20 inline-flex items-center justify-center space-x-2 cursor-pointer"
               >
-                <span>Upgrade to Pro</span>
+                <span>{orderSubmitting ? 'Preparing...' : 'Upgrade to Pro'}</span>
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </button>
             </div>
 
           </div>
@@ -383,7 +433,7 @@ const Pricing = () => {
               </div>
 
               <button
-                onClick={() => setSelectedCardForOrder({ name: 'Essential Card', price: '₹499' })}
+                onClick={() => setSelectedCardForOrder({ name: 'Essential Card', price: '₹499', productType: 'essential_card' })}
                 className="w-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer shadow-xs"
               >
                 <span>Order Now</span>
@@ -441,7 +491,7 @@ const Pricing = () => {
               </div>
 
               <button
-                onClick={() => setSelectedCardForOrder({ name: 'Signature Card', price: '₹999' })}
+                onClick={() => setSelectedCardForOrder({ name: 'Signature Card', price: '₹999', productType: 'signature_card' })}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer shadow-md shadow-purple-600/20"
               >
                 <span>Order Now</span>
@@ -488,7 +538,7 @@ const Pricing = () => {
               </div>
 
               <button
-                onClick={() => setSelectedCardForOrder({ name: 'Metal NFC Card', price: '₹2,999' })}
+                onClick={() => setSelectedCardForOrder({ name: 'Metal NFC Card', price: '₹2,999', productType: 'metal_card' })}
                 className="w-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer shadow-xs"
               >
                 <span>Order Now</span>
@@ -708,7 +758,7 @@ const Pricing = () => {
             {/* Bottom Row: Reserve Button & Counter */}
             <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-slate-800 mt-6">
               <button
-                onClick={() => setSelectedCardForOrder({ name: 'Founder Edition Card (Limited)', price: '₹4,999' })}
+                onClick={() => setSelectedCardForOrder({ name: 'Founder Edition Card (Limited)', price: '₹4,999', productType: 'founder_edition_card' })}
                 className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-6 py-3 rounded-xl text-xs sm:text-sm transition-all inline-flex items-center space-x-2 cursor-pointer shadow-md"
               >
                 <span>Reserve Yours Now</span>
@@ -807,24 +857,52 @@ const Pricing = () => {
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
+                  if (!selectedCardForOrder) return;
+
                   setOrderSubmitting(true);
                   try {
-                    const res = await axios.post(`${API_URL}/orders`, {
+                    const paymentOrder = await createBackendRazorpayOrder({
+                      productType: selectedCardForOrder.productType,
                       cardName: selectedCardForOrder.name,
-                      price: selectedCardForOrder.price,
                       customerName,
                       phone,
                       shippingAddress,
                       userId: user?._id || null,
                     });
-                    if (res.data.success) {
-                      setOrderSuccessMsg('Admin notification sent! Our fulfillment team will contact you shortly.');
-                      setCustomerName('');
-                      setPhone('');
-                      setShippingAddress('');
-                    }
+
+                    await openRazorpayCheckout({
+                      orderId: paymentOrder.orderId,
+                      amount: paymentOrder.amount,
+                      currency: paymentOrder.currency,
+                      keyId: paymentOrder.keyId,
+                      customerName,
+                      phone,
+                      email: user?.email || '',
+                      onSuccess: async (response) => {
+                        const verifyResponse = await verifyRazorpayPayment({
+                          razorpay_order_id: response.razorpay_order_id,
+                          razorpay_payment_id: response.razorpay_payment_id,
+                          razorpay_signature: response.razorpay_signature,
+                        });
+
+                        if (verifyResponse.success) {
+                          setOrderSuccessMsg('Payment verified successfully! Admin notification sent.');
+                          setCustomerName('');
+                          setPhone('');
+                          setShippingAddress('');
+                        } else {
+                          setOrderSuccessMsg('Payment verification failed.');
+                        }
+                      },
+                      onFailure: (error) => {
+                        setOrderSuccessMsg(error?.description || 'Payment failed.');
+                      },
+                      onCancel: () => {
+                        setOrderSuccessMsg('Payment cancelled.');
+                      },
+                    });
                   } catch (err) {
-                    alert(err.response?.data?.message || 'Failed to place order. Please try again.');
+                    alert(err.response?.data?.message || err.message || 'Failed to place order. Please try again.');
                   } finally {
                     setOrderSubmitting(false);
                   }
