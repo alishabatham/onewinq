@@ -6,6 +6,10 @@ const OrderSchema = new mongoose.Schema({
     ref: 'User',
     default: null,
   },
+  productType: {
+    type: String,
+    default: 'card_order',
+  },
   cardName: {
     type: String,
     required: true,
@@ -22,9 +26,13 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  priceNumeric: {
+  amount: {
     type: Number,
     default: 0,
+  },
+  currency: {
+    type: String,
+    default: 'INR',
   },
   customerName: {
     type: String,
@@ -74,8 +82,28 @@ const OrderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Pending', 'Processing', 'Printed', 'Shipped', 'Delivered', 'Cancelled'],
-    default: 'Pending',
+    enum: ['created', 'pending', 'paid', 'failed', 'cancelled', 'refunded', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+    default: 'created',
+  },
+  paymentMethod: {
+    type: String,
+    default: 'manual',
+  },
+  razorpayOrderId: {
+    type: String,
+    default: null,
+  },
+  razorpayPaymentId: {
+    type: String,
+    default: null,
+  },
+  razorpaySignature: {
+    type: String,
+    default: null,
+  },
+  failureReason: {
+    type: String,
+    default: '',
   },
   isReadByAdmin: {
     type: Boolean,
@@ -85,6 +113,15 @@ const OrderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+OrderSchema.pre('save', function (next) {
+  this.updatedAt = new Date();
+  next();
 });
 
 module.exports = mongoose.model('Order', OrderSchema);

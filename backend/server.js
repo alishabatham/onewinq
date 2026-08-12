@@ -15,6 +15,66 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
+const { verifyWebhookSignature } = require('./services/razorpayService');
+const Order = require('./models/Order');
+
+app.post('/api/orders/webhook/razorpay', express.raw({ type: 'application/json' }), async (req, res) => {
+  try {
+    const signature = req.headers['x-razorpay-signature'];
+    const rawBody = req.body ? req.body.toString('utf8') : '';
+
+    const valid = verifyWebhookSignature({ rawBody, signature: signature || '' });
+
+    if (!valid) {
+      return res.status(400).json({ success: false, message: 'Invalid Razorpay webhook signature' });
+    }
+
+    const event = JSON.parse(rawBody);
+    const payload = event.payload || {};
+    const paymentEntity = payload.payment?.entity || {};
+    const orderEntity = payload.order?.entity || {};
+
+    if (!event || !event.event) {
+      return res.status(400).json({ success: false, message: 'Invalid Razorpay webhook payload' });
+    }
+
+    const razorpayOrderId = orderEntity.id || paymentEntity.order_id;
+
+    if (razorpayOrderId) {
+      const order = await Order.findOne({ razorpayOrderId: razorpayOrderId });
+      if (order) {
+        if (event.event === 'payment.captured' || event.event === 'order.paid') {
+          await Order.findByIdAndUpdate(order._id, {
+            status: 'paid',
+            razorpayPaymentId: paymentEntity.id || order.razorpayPaymentId || null,
+            razorpaySignature: order.razorpaySignature || null,
+            paymentMethod: 'Razorpay',
+            failureReason: '',
+          });
+        }
+
+        if (event.event === 'payment.failed') {
+          await Order.findByIdAndUpdate(order._id, {
+            status: 'failed',
+            failureReason: paymentEntity.error_description || 'Razorpay payment failed',
+          });
+        }
+
+        if (event.event === 'refund.created' || event.event === 'refund.processed') {
+          await Order.findByIdAndUpdate(order._id, {
+            status: 'refunded',
+          });
+        }
+      }
+    }
+
+    return res.json({ success: true, received: true });
+  } catch (error) {
+    console.error('Webhook processing error:', error.message);
+    return res.status(400).json({ success: false, message: 'Webhook processing failed' });
+  }
+});
+
 // Middlewares
 app.use(cors());
 app.use(express.json());
