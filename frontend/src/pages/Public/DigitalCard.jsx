@@ -93,7 +93,12 @@ const DigitalCard = () => {
 
   const fetchPublicProfile = async () => {
     try {
-      const isTap = searchParams.get('tap') === 'true' || searchParams.get('src') === 'nfc';
+      const tapParam = searchParams.get('tap');
+      const srcParam = searchParams.get('src');
+      const nfcParam = searchParams.get('nfc');
+      const refParam = searchParams.get('ref');
+      const isTap = tapParam === 'true' || tapParam === '1' || srcParam === 'nfc' || srcParam === 'qr' || nfcParam === 'true' || refParam === 'nfc';
+
       const res = await axios.get(`${API_URL}/card/public/${cardId}?tap=${isTap}`);
       if (res.data.success) {
         if (res.data.linked === false) {
@@ -112,6 +117,14 @@ const DigitalCard = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTapOption = async (actionType) => {
+    try {
+      await axios.post(`${API_URL}/card/public/${cardId}/tap`, { actionType });
+    } catch (e) {
+      console.error('Tap logging error:', e);
     }
   };
 
@@ -313,7 +326,11 @@ const DigitalCard = () => {
       <TemplateCardRenderer
         profile={profile}
         templateIdOverride={templatePreviewParam || profile.templateId}
-        onSaveContact={handleSaveContact}
+        onSaveContact={() => {
+          handleSaveContact();
+          handleTapOption('save_contact');
+        }}
+        onTapOption={handleTapOption}
         onConnectSuccess={(newCount) => {
           setProfile(prev => prev ? ({ ...prev, totalConnections: newCount, connectionsCount: `${newCount}` }) : prev);
         }}
@@ -321,6 +338,7 @@ const DigitalCard = () => {
       />
     </div>
   );
+
 };
 
 export default DigitalCard;

@@ -73,6 +73,7 @@ const TemplateCardRenderer = ({
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [connectSuccess, setConnectSuccess] = useState(false);
+  const [connectMessage, setConnectMessage] = useState('');
   const [connectError, setConnectError] = useState('');
   
   const [localConnCount, setLocalConnCount] = useState(
@@ -108,13 +109,9 @@ const TemplateCardRenderer = ({
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const payload = {
-        name: user?.name || user?.fullName || 'OneWinq Professional',
+        name: user?.name || 'LoggedIn User',
         email: user?.email || '',
-        mobile: user?.mobile || '',
-        company: user?.company || '',
-        designation: user?.designation || '',
-        notes: `Connected via OneWinq Card`,
-        userId: user?.id || user?._id
+        notes: 'Connected directly via profile action',
       };
       const res = await axios.post(`${API_URL}/card/public/${cardIdParam}/connect`, payload, { headers });
       if (res.data.success) {
@@ -123,12 +120,11 @@ const TemplateCardRenderer = ({
         if (onConnectSuccess) {
           onConnectSuccess(updatedCount);
         }
+        setConnectMessage(res.data.message || `You are now connected with ${rawProfile?.name || 'this card owner'}.`);
         setConnectSuccess(true);
-      } else {
-        setConnectError(res.data.message || 'Could not connect.');
       }
     } catch (err) {
-      setConnectError(err.response?.data?.message || 'Could not send connection request. Please try again.');
+      setConnectError(err.response?.data?.message || 'Could not send connection request.');
     } finally {
       setConnecting(false);
     }
@@ -173,6 +169,7 @@ const TemplateCardRenderer = ({
         if (onConnectSuccess) {
           onConnectSuccess(updatedCount);
         }
+        setConnectMessage(res.data.message || `You are now connected with ${rawProfile?.name || 'this card owner'}.`);
         setConnectSuccess(true);
       }
     } catch (err) {
@@ -952,10 +949,13 @@ const TemplateCardRenderer = ({
                 <div className="h-16 w-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
                   <CheckCircle2 className="h-10 w-10" />
                 </div>
-                <h3 className="text-xl font-extrabold text-slate-900">Connected! 🎉</h3>
+                <h3 className="text-xl font-extrabold text-slate-900">
+                  {connectMessage.includes('Already') ? 'Connection Updated! 🤝' : 'Connected! 🎉'}
+                </h3>
                 <p className="text-xs text-slate-600 max-w-xs mx-auto">
-                  You are now connected with <span className="font-bold text-slate-900">{profile.name}</span>.
+                  {connectMessage || `You are now connected with ${profile.name}.`}
                 </p>
+
                 <div className="bg-indigo-50 border border-indigo-100 p-3 rounded-xl text-xs font-bold text-indigo-700 inline-block">
                   ⚡ Total Connections: {localConnCount}
                 </div>

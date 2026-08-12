@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { usePWA } from '../context/PWAContext';
 
-const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview = false }) => {
+const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, onTapOption, isPreview = false }) => {
   const { triggerInstall, isInstalled } = usePWA();
   const [activeModal, setActiveModal] = useState(null); // 'meeting' | 'brochure' | 'services' | 'video'
   const [meetingSubmitted, setMeetingSubmitted] = useState(false);
@@ -27,6 +27,7 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
   ];
 
   const handleShareProfile = () => {
+    if (onTapOption) onTapOption('share');
     if (navigator.share) {
       navigator.share({
         title: `${profile?.name || 'Digital Profile'} | OneWinq`,
@@ -40,6 +41,7 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
 
   const handleMeetingSubmit = (e) => {
     e.preventDefault();
+    if (onTapOption) onTapOption('meeting');
     setMeetingSubmitted(true);
     setTimeout(() => {
       setMeetingSubmitted(false);
@@ -54,6 +56,7 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
         <button
           onClick={() => {
             if (isPreview) return;
+            if (onTapOption) onTapOption('save_contact');
             if (onSaveContact) onSaveContact();
           }}
           className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold py-3.5 px-4 rounded-2xl shadow-md shadow-indigo-500/20 flex items-center justify-center space-x-2 text-xs transition-all cursor-pointer"
@@ -74,7 +77,11 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
       {/* Add App Icon to Home Screen (PWA Button) */}
       {!isInstalled && (
         <button
-          onClick={() => !isPreview && triggerInstall()}
+          onClick={() => {
+            if (isPreview) return;
+            if (onTapOption) onTapOption('pwa_install');
+            triggerInstall();
+          }}
           className="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-3 px-4 rounded-2xl shadow-md flex items-center justify-center space-x-2 text-xs transition-all cursor-pointer border border-slate-700/50"
         >
           <Smartphone className="h-4 w-4 text-[#6344F5]" />
@@ -87,7 +94,10 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
         {profile?.mobile && (
           <a
             href={!isPreview ? `tel:${cleanPhone(profile.mobile)}` : '#'}
-            onClick={(e) => isPreview && e.preventDefault()}
+            onClick={(e) => {
+              if (isPreview) e.preventDefault();
+              if (onTapOption) onTapOption('call');
+            }}
             className="flex flex-col items-center justify-center p-1.5 hover:bg-slate-50 rounded-xl transition-all"
           >
             <div className="h-9 w-9 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center mb-1">
@@ -102,7 +112,10 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
             href={!isPreview ? `https://wa.me/${cleanPhone(profile.whatsApp)}` : '#'}
             target={!isPreview ? "_blank" : "_self"}
             rel="noreferrer"
-            onClick={(e) => isPreview && e.preventDefault()}
+            onClick={(e) => {
+              if (isPreview) e.preventDefault();
+              if (onTapOption) onTapOption('whatsApp');
+            }}
             className="flex flex-col items-center justify-center p-1.5 hover:bg-slate-50 rounded-xl transition-all"
           >
             <div className="h-9 w-9 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center mb-1">
@@ -115,7 +128,10 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
         {profile?.email && (
           <a
             href={!isPreview ? `mailto:${profile.email}` : '#'}
-            onClick={(e) => isPreview && e.preventDefault()}
+            onClick={(e) => {
+              if (isPreview) e.preventDefault();
+              if (onTapOption) onTapOption('email');
+            }}
             className="flex flex-col items-center justify-center p-1.5 hover:bg-slate-50 rounded-xl transition-all"
           >
             <div className="h-9 w-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mb-1">
@@ -130,7 +146,10 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
             href={!isPreview ? `https://maps.google.com/?q=${encodeURIComponent(profile.address)}` : '#'}
             target={!isPreview ? "_blank" : "_self"}
             rel="noreferrer"
-            onClick={(e) => isPreview && e.preventDefault()}
+            onClick={(e) => {
+              if (isPreview) e.preventDefault();
+              if (onTapOption) onTapOption('location');
+            }}
             className="flex flex-col items-center justify-center p-1.5 hover:bg-slate-50 rounded-xl transition-all"
           >
             <div className="h-9 w-9 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center mb-1">
@@ -149,7 +168,10 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
           {/* Option 0: Connect & Exchange Info */}
           {onOpenConnect && (
             <button
-              onClick={onOpenConnect}
+              onClick={() => {
+                if (onTapOption) onTapOption('connect');
+                onOpenConnect();
+              }}
               className="w-full bg-[#6344F5]/10 hover:bg-[#6344F5]/15 border border-[#6344F5]/30 p-3.5 rounded-2xl flex items-center justify-between group transition-all cursor-pointer"
             >
               <div className="flex items-center space-x-3">
@@ -169,7 +191,10 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
 
           {/* Option 1: Book a Meeting */}
           <button
-            onClick={() => setActiveModal('meeting')}
+            onClick={() => {
+              if (onTapOption) onTapOption('meeting');
+              setActiveModal('meeting');
+            }}
             className="w-full bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200 p-3.5 rounded-2xl flex items-center justify-between group transition-all cursor-pointer"
           >
             <div className="flex items-center space-x-3">
@@ -186,7 +211,10 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
 
           {/* Option 2: View Brochure */}
           <button
-            onClick={() => setActiveModal('brochure')}
+            onClick={() => {
+              if (onTapOption) onTapOption('brochure');
+              setActiveModal('brochure');
+            }}
             className="w-full bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200 p-3.5 rounded-2xl flex items-center justify-between group transition-all cursor-pointer"
           >
             <div className="flex items-center space-x-3">
@@ -203,7 +231,10 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
 
           {/* Option 3: Our Services */}
           <button
-            onClick={() => setActiveModal('services')}
+            onClick={() => {
+              if (onTapOption) onTapOption('services');
+              setActiveModal('services');
+            }}
             className="w-full bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200 p-3.5 rounded-2xl flex items-center justify-between group transition-all cursor-pointer"
           >
             <div className="flex items-center space-x-3">
@@ -224,7 +255,10 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
               href={!isPreview ? profile.website : '#'}
               target={!isPreview ? "_blank" : "_self"}
               rel="noreferrer"
-              onClick={(e) => isPreview && e.preventDefault()}
+              onClick={(e) => {
+                if (isPreview) e.preventDefault();
+                if (onTapOption) onTapOption('website');
+              }}
               className="w-full bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200 p-3.5 rounded-2xl flex items-center justify-between group transition-all cursor-pointer block"
             >
               <div className="flex items-center space-x-3">
@@ -242,7 +276,10 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
 
           {/* Option 5: Watch Video */}
           <button
-            onClick={() => setActiveModal('video')}
+            onClick={() => {
+              if (onTapOption) onTapOption('video');
+              setActiveModal('video');
+            }}
             className="w-full bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200 p-3.5 rounded-2xl flex items-center justify-between group transition-all cursor-pointer"
           >
             <div className="flex items-center space-x-3">
@@ -258,6 +295,7 @@ const LetsConnectSection = ({ profile, onSaveContact, onOpenConnect, isPreview =
           </button>
         </div>
       </div>
+
 
       {/* LIGHT MODE MODALS */}
 

@@ -212,11 +212,16 @@ const AdminLayout = () => {
                             <span className="font-bold text-white text-xs sm:text-sm">{notif.customerName}</span>
                             <span className="text-[10px] text-purple-400 font-extrabold">{notif.price}</span>
                           </div>
-                          <p className="text-xs text-slate-400 font-medium">
-                            Ordered: <span className="text-slate-200">{notif.cardName}</span>
+                          <p className="text-xs text-slate-300 font-medium">
+                            Ordered: <span className="text-white font-bold">{notif.cardName}</span> ({notif.cardColor || 'Standard'})
                           </p>
-                          <div className="flex justify-between items-center text-[10px] text-slate-500 pt-1">
-                            <span>Phone: {notif.phone}</span>
+                          {notif.customNameOnCard && (
+                            <div className="text-[10px] text-amber-300 font-mono">
+                              Print: "{notif.customNameOnCard}"
+                            </div>
+                          )}
+                          <div className="flex justify-between items-center text-[10px] text-slate-400 pt-1 border-t border-slate-800/60">
+                            <span className="font-semibold text-emerald-400">{notif.paymentStatus || 'Paid'} ({notif.paymentMethod || 'UPI'})</span>
                             <span>{new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
                         </div>

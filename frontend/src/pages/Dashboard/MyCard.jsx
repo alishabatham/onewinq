@@ -270,8 +270,11 @@ const MyCard = () => {
                 <span className="font-mono font-extrabold text-indigo-600 text-base block">{card.cardId}</span>
               </div>
 
-              <div className="text-xs text-slate-500 leading-relaxed pt-1">
-                Tapping your physical NFC card against any smartphone will automatically open your digital identity link: <span className="font-mono text-slate-700 font-bold">{fullPublicUrl}</span>
+              <div className="text-xs text-slate-500 leading-relaxed pt-1 space-y-1">
+                <p>Tapping your physical NFC card against any smartphone will open your NFC tap link:</p>
+                <span className="font-mono text-indigo-700 font-bold block bg-indigo-50/70 p-2 rounded-xl border border-indigo-100 select-all">
+                  {`${window.location.origin}/u/${liveCardSlug}?src=nfc`}
+                </span>
               </div>
             </div>
           ) : (

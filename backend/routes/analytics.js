@@ -30,19 +30,32 @@ router.get('/', protect, async (req, res) => {
       });
     }
 
-    // Wipe legacy mock numbers if stored in existing MongoDB documents
-    if (analytics.uniqueVisitors >= 800 || analytics.totalViews >= 1400 || analytics.totalTaps >= 1200) {
-      analytics.totalTaps = 0;
-      analytics.totalViews = 0;
-      analytics.uniqueVisitors = 0;
-      analytics.recentActivity = [];
-    }
 
-    // Calculate real connection count from DB (both incoming & outgoing)
-    const realConnectionCount = await Connection.countDocuments({
+    // Calculate real unique connection count from DB (both incoming & outgoing)
+    const rawConnections = await Connection.find({
       $or: [{ cardOwner: req.user._id }, { connectedUser: req.user._id }]
     });
-    analytics.leadsGenerated = realConnectionCount;
+
+    const seenLeads = new Set();
+    for (const conn of rawConnections) {
+      let key = null;
+      const isOwner = String(conn.cardOwner) === String(req.user._id);
+      const otherUser = isOwner ? conn.connectedUser : conn.cardOwner;
+
+      if (otherUser) {
+        key = `user_${otherUser}`;
+      } else if (conn.visitorEmail) {
+        key = `email_${conn.visitorEmail.trim().toLowerCase()}`;
+      } else if (conn.visitorMobile) {
+        key = `mobile_${conn.visitorMobile.trim()}`;
+      } else {
+        key = `id_${conn._id}`;
+      }
+      seenLeads.add(key);
+    }
+
+    analytics.leadsGenerated = seenLeads.size;
+
 
     // Filter out old legacy mock activities
     if (analytics.recentActivity && analytics.recentActivity.length > 0) {

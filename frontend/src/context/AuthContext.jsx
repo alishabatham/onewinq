@@ -9,7 +9,7 @@ const getApiUrl = () => {
   }
   const { hostname } = window.location;
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5000/api';
+    return 'https://onewinq-4izp.vercel.app/api';
   }
   return 'https://onewinq-4izp.vercel.app/api';
 };

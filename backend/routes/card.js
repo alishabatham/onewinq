@@ -146,7 +146,7 @@ router.post('/unlink', protect, async (req, res) => {
 router.get('/public/:cardId', async (req, res) => {
   try {
     const { cardId } = req.params;
-    const isTap = req.query.tap === 'true';
+    const queryIsTap = req.query.tap === 'true' || req.query.tap === '1' || req.query.src === 'nfc' || req.query.nfc === 'true' || req.query.ref === 'nfc' || req.query.src === 'qr';
 
     let profile = null;
     let card = null;
@@ -220,6 +220,8 @@ router.get('/public/:cardId', async (req, res) => {
       }
     }
 
+    const isTap = queryIsTap || Boolean(card);
+
     // Increment Analytics & log real activity if associated user exists
     if (profile.user) {
       let analytics = await Analytics.findOne({ user: profile.user });
@@ -262,6 +264,72 @@ router.get('/public/:cardId', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+// @desc    Record tap event on digital card / option click
+// @route   POST /api/card/public/:cardId/tap
+// @access  Public
+router.post('/public/:cardId/tap', async (req, res) => {
+  try {
+    const { cardId } = req.params;
+    const { actionType } = req.body || {};
+
+    const cleanId = String(cardId).trim();
+    let profile = await Profile.findOne({ customUsername: { $regex: new RegExp(`^${cleanId}$`, 'i') } });
+    if (!profile) {
+      let card = await Card.findOne({ cardId: cleanId });
+      if (card && card.user) {
+        profile = await Profile.findOne({ user: card.user });
+      }
+    }
+    if (!profile && mongoose.Types.ObjectId.isValid(cleanId)) {
+      profile = await Profile.findById(cleanId) || await Profile.findOne({ user: cleanId });
+    }
+
+    if (!profile || !profile.user) {
+      return res.json({ success: true, message: 'Card tap logged' });
+    }
+
+    let analytics = await Analytics.findOne({ user: profile.user });
+    if (!analytics) {
+      analytics = new Analytics({ user: profile.user });
+    }
+
+    analytics.totalTaps = (analytics.totalTaps || 0) + 1;
+    analytics.lastVisit = Date.now();
+
+    if (actionType && ['whatsApp', 'call', 'email', 'website', 'brochure', 'meeting'].includes(actionType)) {
+      if (!analytics.topActions) analytics.topActions = {};
+      analytics.topActions[actionType] = (analytics.topActions[actionType] || 0) + 1;
+    }
+
+    analytics.recentActivity = (analytics.recentActivity || []).filter(
+      a => !['Amit Sharma', 'Priya Mehta', 'John Doe', 'Karan Verma', 'Sneha Iyer'].includes(a.visitorName)
+    );
+
+    const formattedAction = actionType
+      ? `Tapped ${actionType.charAt(0).toUpperCase() + actionType.slice(1)}`
+      : 'Tapped Card Option';
+
+    analytics.recentActivity.unshift({
+      visitorName: 'Digital Card Visitor',
+      action: formattedAction,
+      location: 'India',
+      timestamp: new Date(),
+    });
+
+    if (analytics.recentActivity.length > 25) {
+      analytics.recentActivity = analytics.recentActivity.slice(0, 25);
+    }
+
+    await analytics.save();
+
+    res.json({ success: true, totalTaps: analytics.totalTaps });
+  } catch (error) {
+    console.error('Error recording tap event:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 
 // @desc    Connect with a card owner (increment connection count & save record)
 // @route   POST /api/card/public/:cardId/connect
@@ -319,21 +387,82 @@ router.post('/public/:cardId/connect', async (req, res) => {
       connectedUserId = req.body.userId;
     }
 
-    // Save connection entry
+    // Check for existing connection between cardOwner and visitor
+    let existingConnection = null;
+
+    if (connectedUserId) {
+      existingConnection = await Connection.findOne({
+        $or: [
+          { cardOwner: profile.user, connectedUser: connectedUserId },
+          { cardOwner: connectedUserId, connectedUser: profile.user },
+        ],
+      });
+    }
+
+    if (!existingConnection) {
+      const cleanEmail = email ? email.trim().toLowerCase() : '';
+      const cleanMobile = mobile ? mobile.trim() : '';
+      const queryOr = [];
+      if (cleanEmail) queryOr.push({ visitorEmail: cleanEmail });
+      if (cleanMobile) queryOr.push({ visitorMobile: cleanMobile });
+
+      if (queryOr.length > 0) {
+        existingConnection = await Connection.findOne({
+          cardOwner: profile.user,
+          $or: queryOr,
+        });
+      }
+    }
+
+    // If connection already exists, update info and return without inflating count
+    if (existingConnection) {
+      if (name) existingConnection.visitorName = name.trim();
+      if (email) existingConnection.visitorEmail = email.trim();
+      if (mobile) existingConnection.visitorMobile = mobile.trim();
+      if (company) existingConnection.visitorCompany = company.trim();
+      if (designation) existingConnection.visitorDesignation = designation.trim();
+      if (notes) existingConnection.notes = notes.trim();
+      if (connectedUserId && !existingConnection.connectedUser) {
+        existingConnection.connectedUser = connectedUserId;
+      }
+      existingConnection.createdAt = new Date();
+      await existingConnection.save();
+
+      // Recalculate unique total connections count
+      const uniqueCount = await Connection.countDocuments({
+        $or: [{ cardOwner: profile.user }, { connectedUser: profile.user }],
+      });
+      profile.totalConnections = uniqueCount;
+      profile.connectionsCount = `${uniqueCount}`;
+      await profile.save();
+
+      return res.status(200).json({
+        success: true,
+        message: `Already connected with ${profile.name}! Updated connection details.`,
+        alreadyConnected: true,
+        totalConnections: profile.totalConnections,
+        connection: existingConnection,
+      });
+    }
+
+    // Save new connection entry
     const newConnection = await Connection.create({
       cardOwner: profile.user,
       connectedUser: connectedUserId,
-      visitorName: name,
-      visitorEmail: email || '',
-      visitorMobile: mobile || '',
-      visitorCompany: company || '',
-      visitorDesignation: designation || '',
-      notes: notes || '',
+      visitorName: name.trim(),
+      visitorEmail: email ? email.trim() : '',
+      visitorMobile: mobile ? mobile.trim() : '',
+      visitorCompany: company ? company.trim() : '',
+      visitorDesignation: designation ? designation.trim() : '',
+      notes: notes ? notes.trim() : '',
     });
 
-    // Increment profile.totalConnections
-    profile.totalConnections = (profile.totalConnections || 0) + 1;
-    profile.connectionsCount = `${profile.totalConnections}`;
+    // Update profile.totalConnections to real unique count
+    const uniqueCount = await Connection.countDocuments({
+      $or: [{ cardOwner: profile.user }, { connectedUser: profile.user }],
+    });
+    profile.totalConnections = uniqueCount;
+    profile.connectionsCount = `${uniqueCount}`;
     await profile.save();
 
     // 1. Log connection event in Analytics for Card Owner (User A)
@@ -342,12 +471,12 @@ router.post('/public/:cardId/connect', async (req, res) => {
       if (!analytics) {
         analytics = new Analytics({ user: profile.user });
       }
-      analytics.leadsGenerated = (analytics.leadsGenerated || 0) + 1;
+      analytics.leadsGenerated = uniqueCount;
       analytics.recentActivity = (analytics.recentActivity || []).filter(
         a => !['Amit Sharma', 'Priya Mehta', 'John Doe', 'Karan Verma', 'Sneha Iyer'].includes(a.visitorName)
       );
       analytics.recentActivity.unshift({
-        visitorName: name,
+        visitorName: name.trim(),
         action: 'Connected & Exchanged Info',
         location: company ? `${company}` : 'India',
         timestamp: new Date(),
@@ -360,11 +489,15 @@ router.post('/public/:cardId/connect', async (req, res) => {
 
     // 2. Log connection event in Analytics for Connected User (User B) if logged in
     if (connectedUserId && String(connectedUserId) !== String(profile.user)) {
+      const visitorUniqueCount = await Connection.countDocuments({
+        $or: [{ cardOwner: connectedUserId }, { connectedUser: connectedUserId }],
+      });
+
       let visitorAnalytics = await Analytics.findOne({ user: connectedUserId });
       if (!visitorAnalytics) {
         visitorAnalytics = new Analytics({ user: connectedUserId });
       }
-      visitorAnalytics.leadsGenerated = (visitorAnalytics.leadsGenerated || 0) + 1;
+      visitorAnalytics.leadsGenerated = visitorUniqueCount;
       visitorAnalytics.recentActivity = (visitorAnalytics.recentActivity || []).filter(
         a => !['Amit Sharma', 'Priya Mehta', 'John Doe', 'Karan Verma', 'Sneha Iyer'].includes(a.visitorName)
       );
@@ -382,8 +515,8 @@ router.post('/public/:cardId/connect', async (req, res) => {
       // Also update visitor's profile totalConnections count
       let visitorProfile = await Profile.findOne({ user: connectedUserId });
       if (visitorProfile) {
-        visitorProfile.totalConnections = (visitorProfile.totalConnections || 0) + 1;
-        visitorProfile.connectionsCount = `${visitorProfile.totalConnections}`;
+        visitorProfile.totalConnections = visitorUniqueCount;
+        visitorProfile.connectionsCount = `${visitorUniqueCount}`;
         await visitorProfile.save();
       }
     }
@@ -398,6 +531,7 @@ router.post('/public/:cardId/connect', async (req, res) => {
     console.error('Error connecting with profile:', error);
     res.status(500).json({ success: false, message: error.message });
   }
+
 });
 
 module.exports = router;

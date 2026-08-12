@@ -21,6 +21,24 @@ router.get('/stats', async (req, res) => {
     const totalCards = await Card.countDocuments();
     const totalOrders = await Order.countDocuments();
     const pendingOrders = await Order.countDocuments({ status: 'Pending' });
+    const paidOrders = await Order.countDocuments({ paymentStatus: 'Paid' });
+    const pendingPayments = await Order.countDocuments({ paymentStatus: 'Pending' });
+
+    // Calculate total revenue from paid orders
+    const paidOrdersList = await Order.find({ paymentStatus: 'Paid' });
+    const totalRevenue = paidOrdersList.reduce((sum, o) => {
+      if (o.priceNumeric && !isNaN(o.priceNumeric)) {
+        return sum + o.priceNumeric;
+      }
+      const parsed = parseFloat(String(o.price || '').replace(/[^0-9.]/g, '')) || 0;
+      return sum + parsed;
+    }, 0);
+
+    // Card type breakdown
+    const essentialCount = await Order.countDocuments({ cardName: { $regex: /Essential/i } });
+    const signatureCount = await Order.countDocuments({ cardName: { $regex: /Signature/i } });
+    const metalCount = await Order.countDocuments({ cardName: { $regex: /Metal/i } });
+    const founderCount = await Order.countDocuments({ cardName: { $regex: /Founder/i } });
     
     // Aggregate views and taps
     const analyticsList = await Analytics.find();
@@ -38,6 +56,15 @@ router.get('/stats', async (req, res) => {
         totalCards,
         totalOrders,
         pendingOrders,
+        paidOrders,
+        pendingPayments,
+        totalRevenue,
+        cardBreakdown: {
+          essential: essentialCount,
+          signature: signatureCount,
+          metal: metalCount,
+          founder: founderCount,
+        },
         totalViews,
         totalTaps,
       },
@@ -259,22 +286,55 @@ router.get('/notifications', async (req, res) => {
   }
 });
 
-// @desc    Update Order Status
+// @desc    Update Order Details & Status (Fulfillment & Payment tracking)
 // @route   PUT /api/admin/orders/:id/status
 // @access  Private/Admin
 router.put('/orders/:id/status', async (req, res) => {
   try {
-    const { status } = req.body;
+    const { 
+      status, 
+      paymentStatus, 
+      transactionId, 
+      courierName, 
+      trackingNumber, 
+      assignedCardId, 
+      notes 
+    } = req.body;
+
     const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    order.status = status;
+    if (status !== undefined) order.status = status;
+    if (paymentStatus !== undefined) order.paymentStatus = paymentStatus;
+    if (transactionId !== undefined) order.transactionId = transactionId;
+    if (courierName !== undefined) order.courierName = courierName;
+    if (trackingNumber !== undefined) order.trackingNumber = trackingNumber;
+    if (notes !== undefined) order.notes = notes;
     order.isReadByAdmin = true;
+
+    // If assigning physical NFC card code to order
+    if (assignedCardId !== undefined) {
+      order.assignedCardId = assignedCardId;
+      // If order has associated user, link the card in database if unlinked
+      if (assignedCardId && order.user) {
+        const cardObj = await Card.findOne({ cardId: assignedCardId });
+        if (cardObj) {
+          cardObj.user = order.user;
+          cardObj.status = 'active';
+          await cardObj.save();
+        }
+      }
+    }
+
     await order.save();
 
-    res.json({ success: true, message: `Order status updated to ${status}`, order });
+    res.json({ 
+      success: true, 
+      message: `Order updated successfully`, 
+      order 
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });

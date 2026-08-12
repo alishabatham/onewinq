@@ -206,14 +206,46 @@ router.put('/me', protect, async (req, res) => {
 // @access  Private
 router.get('/connections', protect, async (req, res) => {
   try {
-    const connections = await Connection.find({
+    const rawConnections = await Connection.find({
       $or: [{ cardOwner: req.user._id }, { connectedUser: req.user._id }]
     })
       .sort({ createdAt: -1 })
       .populate('cardOwner', 'name email profilePhoto designation companyName')
       .populate('connectedUser', 'name email profilePhoto designation companyName');
 
+    const seen = new Set();
+    const connections = [];
+
+    for (const conn of rawConnections) {
+      let key = null;
+      const isOwner = String(conn.cardOwner?._id || conn.cardOwner) === String(req.user._id);
+      const otherUserObj = isOwner ? conn.connectedUser : conn.cardOwner;
+
+      if (otherUserObj && (otherUserObj._id || otherUserObj)) {
+        key = `user_${otherUserObj._id || otherUserObj}`;
+      } else if (conn.visitorEmail) {
+        key = `email_${conn.visitorEmail.trim().toLowerCase()}`;
+      } else if (conn.visitorMobile) {
+        key = `mobile_${conn.visitorMobile.trim()}`;
+      } else {
+        key = `id_${conn._id}`;
+      }
+
+      if (!seen.has(key)) {
+        seen.add(key);
+        connections.push(conn);
+      }
+    }
+
     const total = connections.length;
+
+    // Sync user's profile.totalConnections with true deduplicated count
+    const userProfile = await Profile.findOne({ user: req.user._id });
+    if (userProfile && userProfile.totalConnections !== total) {
+      userProfile.totalConnections = total;
+      userProfile.connectionsCount = `${total}`;
+      await userProfile.save();
+    }
 
     res.json({
       success: true,
@@ -225,6 +257,7 @@ router.get('/connections', protect, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
 
 // @desc    Upload file (profile photo, logo, brochure)
 // @route   POST /api/profile/upload

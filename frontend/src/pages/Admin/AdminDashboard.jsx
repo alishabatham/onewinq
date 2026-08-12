@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../context/AuthContext';
 import { 
-  Users, CreditCard, Eye, Zap, RefreshCw, AlertCircle, ShoppingBag, Clock, ArrowRight, ShieldCheck
+  Users, CreditCard, Eye, Zap, RefreshCw, AlertCircle, ShoppingBag, Clock, ArrowRight, ShieldCheck, DollarSign, PieChart, Sparkles, Award
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -43,6 +43,10 @@ const AdminDashboard = () => {
   const cardsCount = stats?.totalCards || 0;
   const ordersCount = stats?.totalOrders || 0;
   const pendingOrdersCount = stats?.pendingOrders || 0;
+  const paidOrdersCount = stats?.paidOrders || 0;
+  const pendingPaymentsCount = stats?.pendingPayments || 0;
+  const totalRevenue = stats?.totalRevenue || 0;
+  const cardBreakdown = stats?.cardBreakdown || { essential: 0, signature: 0, metal: 0, founder: 0 };
   const viewsCount = stats?.totalViews || 0;
   const tapsCount = stats?.totalTaps || 0;
   const ttr = viewsCount > 0 ? Math.round((tapsCount / viewsCount) * 100) : 0;
@@ -54,7 +58,7 @@ const AdminDashboard = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Admin Command Center</h1>
-          <p className="text-sm text-slate-400 mt-1">Real-time statistics overview of users, physical NFC card orders, and system analytics.</p>
+          <p className="text-sm text-slate-400 mt-1">Real-time statistics overview of revenue, physical NFC card orders, and system analytics.</p>
         </div>
         <button
           onClick={fetchStats}
@@ -102,15 +106,26 @@ const AdminDashboard = () => {
       {/* Grid of stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
+        {/* Total Revenue */}
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-xs hover:border-slate-700 transition-all">
+          <div>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Total Card Revenue</span>
+            <span className="text-3xl font-black text-emerald-400">₹{totalRevenue.toLocaleString('en-IN')}</span>
+          </div>
+          <div className="bg-emerald-950/50 text-emerald-400 p-3 rounded-xl border border-emerald-900/30">
+            <DollarSign className="h-5 w-5" />
+          </div>
+        </div>
+
         {/* Orders Card */}
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-xs hover:border-slate-700 transition-all">
           <div>
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Card Orders</span>
             <div className="flex items-baseline space-x-2">
               <span className="text-3xl font-black text-white">{ordersCount}</span>
-              {pendingOrdersCount > 0 && (
-                <span className="text-xs font-bold text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full">
-                  {pendingOrdersCount} pending
+              {paidOrdersCount > 0 && (
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full">
+                  {paidOrdersCount} paid
                 </span>
               )}
             </div>
@@ -134,7 +149,7 @@ const AdminDashboard = () => {
         {/* Generated Cards */}
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-xs hover:border-slate-700 transition-all">
           <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">NFC Cards Generated</span>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">NFC Inventory Generated</span>
             <span className="text-3xl font-black text-white">{cardsCount}</span>
           </div>
           <div className="bg-violet-950/50 text-violet-400 p-3 rounded-xl border border-violet-900/30">
@@ -142,45 +157,69 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* NFC Taps */}
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-xs hover:border-slate-700 transition-all">
-          <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Total NFC Scans</span>
-            <span className="text-3xl font-black text-white">{tapsCount}</span>
-          </div>
-          <div className="bg-emerald-950/50 text-emerald-400 p-3 rounded-xl border border-emerald-900/30">
-            <Zap className="h-5 w-5" />
-          </div>
-        </div>
-
       </div>
 
-      {/* Visual Conversion Rate */}
-      <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xs space-y-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="font-extrabold text-white text-base">NFC Tap Conversion Rate (TTR)</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Percentage of profile traffic generated directly via physical NFC card taps.</p>
+      {/* Analytics Rows */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Card Popularity Breakdown */}
+        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xs space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-extrabold text-white text-base">Booked Card Variant Breakdown</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Distribution of card types selected by customers.</p>
+            </div>
+            <PieChart className="h-5 w-5 text-indigo-400" />
           </div>
-          <span className="text-2xl font-black text-indigo-400">{ttr}%</span>
+
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+              <span className="text-xs font-semibold text-slate-400 block">Essential PVC</span>
+              <span className="text-2xl font-black text-white">{cardBreakdown.essential}</span>
+            </div>
+            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+              <span className="text-xs font-semibold text-purple-400 block">Signature Matte</span>
+              <span className="text-2xl font-black text-purple-300">{cardBreakdown.signature}</span>
+            </div>
+            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+              <span className="text-xs font-semibold text-amber-400 block">Metal Stainless</span>
+              <span className="text-2xl font-black text-amber-300">{cardBreakdown.metal}</span>
+            </div>
+            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+              <span className="text-xs font-semibold text-amber-500 block">Founder Edition</span>
+              <span className="text-2xl font-black text-amber-400">{cardBreakdown.founder}</span>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <div className="flex justify-between text-xs font-semibold text-slate-400 mb-2">
-            <span>Direct Card Taps ({tapsCount})</span>
-            <span>Total Profile Views ({viewsCount})</span>
+        {/* Visual Conversion Rate */}
+        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xs space-y-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="font-extrabold text-white text-base">NFC Tap Conversion Rate (TTR)</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Percentage of profile traffic generated directly via physical NFC card taps.</p>
+            </div>
+            <span className="text-2xl font-black text-indigo-400">{ttr}%</span>
           </div>
-          <div className="h-3 w-full bg-slate-950 rounded-full overflow-hidden flex">
-            <div
-              style={{ width: `${ttr}%` }}
-              className="bg-indigo-600 h-full transition-all"
-            ></div>
-            <div
-              style={{ width: `${100 - ttr}%` }}
-              className="bg-slate-800 h-full transition-all"
-            ></div>
+
+          <div>
+            <div className="flex justify-between text-xs font-semibold text-slate-400 mb-2">
+              <span>Direct Card Taps ({tapsCount})</span>
+              <span>Total Profile Views ({viewsCount})</span>
+            </div>
+            <div className="h-3 w-full bg-slate-950 rounded-full overflow-hidden flex">
+              <div
+                style={{ width: `${ttr}%` }}
+                className="bg-indigo-600 h-full transition-all"
+              ></div>
+              <div
+                style={{ width: `${100 - ttr}%` }}
+                className="bg-slate-800 h-full transition-all"
+              ></div>
+            </div>
           </div>
         </div>
+
       </div>
 
     </div>

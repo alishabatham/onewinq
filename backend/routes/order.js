@@ -7,7 +7,21 @@ const Order = require('../models/Order');
 // @access  Public (or authenticated if token present)
 router.post('/', async (req, res) => {
   try {
-    const { cardName, price, customerName, phone, shippingAddress, userId } = req.body;
+    const { 
+      cardName, 
+      cardColor, 
+      customNameOnCard, 
+      price, 
+      customerName, 
+      email, 
+      phone, 
+      shippingAddress, 
+      paymentStatus, 
+      paymentMethod, 
+      transactionId, 
+      notes, 
+      userId 
+    } = req.body;
 
     if (!cardName || !price || !customerName || !phone || !shippingAddress) {
       return res.status(400).json({
@@ -16,13 +30,25 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // Parse numeric price for revenue analytics (e.g., "₹2,999" -> 2999)
+    const numericStr = String(price).replace(/[^0-9.]/g, '');
+    const priceNumeric = parseFloat(numericStr) || 0;
+
     const order = await Order.create({
       user: userId || null,
       cardName,
+      cardColor: cardColor || 'Black',
+      customNameOnCard: customNameOnCard || customerName,
       price,
+      priceNumeric,
       customerName,
+      email: email || '',
       phone,
       shippingAddress,
+      paymentStatus: paymentStatus || 'Paid',
+      paymentMethod: paymentMethod || 'UPI',
+      transactionId: transactionId || '',
+      notes: notes || '',
       status: 'Pending',
       isReadByAdmin: false,
     });
