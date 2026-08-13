@@ -74,25 +74,23 @@ const getProductDefinition = (productType) => {
   return PRODUCT_PLANS[productType];
 };
 
-// @desc    Create a new NFC Card Order
+// @desc    Create a new Cash on Delivery (COD) Order
 // @route   POST /api/orders
 // @access  Public (or authenticated if token present)
 router.post('/', async (req, res) => {
   try {
-    const { 
-      cardName, 
-      cardColor, 
-      customNameOnCard, 
-      price, 
-      customerName, 
-      email, 
-      phone, 
-      shippingAddress, 
-      paymentStatus, 
-      paymentMethod, 
-      transactionId, 
-      notes, 
-      userId 
+    const {
+      cardName,
+      cardColor,
+      customNameOnCard,
+      price,
+      customerName,
+      email,
+      phone,
+      shippingAddress,
+      notes,
+      userId,
+      productType
     } = req.body;
 
     if (!cardName || !price || !customerName || !phone || !shippingAddress) {
@@ -117,19 +115,19 @@ router.post('/', async (req, res) => {
       email: email || '',
       phone,
       shippingAddress,
-      paymentStatus: paymentStatus || 'Paid',
-      paymentMethod: paymentMethod || 'UPI',
-      transactionId: transactionId || '',
+      paymentStatus: 'Pending',
+      paymentMethod: 'Cash on Delivery',
+      transactionId: '',
       notes: notes || '',
-      status: 'Pending',
-      productType: 'legacy_card_order',
+      status: 'pending',
+      productType: productType || 'legacy_card_order',
       amount: currencyValue(price.replace(/[^0-9]/g, '')) || 0,
       isReadByAdmin: false,
     });
 
     res.status(201).json({
       success: true,
-      message: 'Order placed successfully! Admin has been notified.',
+      message: 'Cash on Delivery order placed successfully! Admin has been notified.',
       order,
     });
   } catch (error) {
@@ -146,9 +144,13 @@ router.post('/create-payment-order', async (req, res) => {
     const {
       productType,
       cardName,
+      cardColor,
+      customNameOnCard,
       customerName,
+      email,
       phone,
       shippingAddress,
+      notes,
       userId,
     } = req.body;
 
@@ -188,12 +190,16 @@ router.post('/create-payment-order', async (req, res) => {
       user: userId || null,
       productType: selectedProduct.productType,
       cardName: inferredOrderName,
+      cardColor: cardColor || 'Black',
+      customNameOnCard: customNameOnCard || customerName,
       price: selectedProduct.displayPrice,
       amount: selectedProduct.amount,
       currency: selectedProduct.currency,
       customerName: customerName || '',
+      email: email || '',
       phone: phone || '',
       shippingAddress: shippingAddress || '',
+      notes: notes || '',
       status: 'created',
       paymentMethod: 'Razorpay',
       isReadByAdmin: false,

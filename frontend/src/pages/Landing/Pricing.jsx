@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
+import { useAuth, API_URL } from '../../context/AuthContext';
 import { createBackendRazorpayOrder, openRazorpayCheckout, verifyRazorpayPayment } from '../../utils/razorpay';
-import { 
-  Sparkles, Check, ArrowRight, CreditCard, ShieldCheck, Globe, RefreshCw, 
+import {
+  Sparkles, Check, ArrowRight, CreditCard, ShieldCheck, Globe, RefreshCw,
   ShoppingCart, Briefcase, ChevronDown, ChevronUp, Star, Lock, Zap, Award, Layers, Sparkle, Loader2
 } from 'lucide-react';
 
@@ -15,14 +16,14 @@ const Pricing = () => {
   const [phone, setPhone] = useState('');
   const [shippingAddress, setShippingAddress] = useState('');
   const [customNameOnCard, setCustomNameOnCard] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('UPI');
-  const [transactionId, setTransactionId] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('Pay Online (Razorpay)');
   const [notes, setNotes] = useState('');
   const [orderSuccessMsg, setOrderSuccessMsg] = useState('');
   // Selected colors for physical cards preview
   const [essentialColor, setEssentialColor] = useState('black');
   const [signatureColor, setSignatureColor] = useState('black');
   const [metalColor, setMetalColor] = useState('black');
+  const [activeCardId, setActiveCardId] = useState('signature_card'); // Default active card
 
   // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState(0);
@@ -112,12 +113,12 @@ const Pricing = () => {
   return (
     <div className="bg-[#FAFBFD] text-slate-900 min-h-screen pt-8 pb-20 font-googlesans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-        
+
         {/* ========================================================================= */}
         {/* HERO SECTION */}
         {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-4">
-          
+
           {/* Left Column: Headline & Controls */}
           <div className="lg:col-span-7 space-y-6 text-left">
 
@@ -184,7 +185,7 @@ const Pricing = () => {
 
             {/* 3D Stacked NFC Cards Container */}
             <div className="relative w-full max-w-md h-72 sm:h-80 flex items-center justify-center">
-              
+
               {/* Back Card (Angled Top Right) */}
               <div className="absolute top-2 right-4 w-72 sm:w-80 h-44 sm:h-48 bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-5 text-white shadow-2xl transform rotate-6 border border-slate-700 flex flex-col justify-between transition-transform duration-500 hover:rotate-3">
                 <div className="flex justify-between items-start">
@@ -233,7 +234,7 @@ const Pricing = () => {
         {/* ========================================================================= */}
         <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-6 shadow-xs">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100">
-            
+
             {/* Item 1 */}
             <div className="flex items-center space-x-4 pt-3 md:pt-0 md:px-4">
               <div className="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
@@ -286,12 +287,12 @@ const Pricing = () => {
 
           {/* Pricing Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl">
-            
+
             {/* Free Plan Card */}
             <div className="bg-white border border-slate-200 rounded-3xl p-8 flex flex-col justify-between text-left hover:shadow-lg transition-all">
               <div>
                 <h3 className="text-2xl font-extrabold text-slate-900">Free</h3>
-                
+
                 <div className="mt-4 mb-2 flex items-baseline space-x-2">
                   <span className="text-4xl sm:text-5xl font-black text-slate-900">₹0</span>
                   <span className="text-slate-500 text-xs sm:text-sm font-semibold">Forever free</span>
@@ -327,7 +328,7 @@ const Pricing = () => {
 
             {/* Pro Plan Card (Featured) */}
             <div className="bg-white border-2 border-purple-600 rounded-3xl p-8 relative flex flex-col justify-between text-left shadow-xl shadow-purple-500/5">
-              
+
               {/* Most Popular Badge */}
               <div className="absolute -top-3.5 right-8 bg-purple-700 text-white px-3.5 py-1 rounded-full text-[11px] font-black tracking-wider uppercase shadow-xs">
                 MOST POPULAR
@@ -335,7 +336,7 @@ const Pricing = () => {
 
               <div>
                 <h3 className="text-2xl font-extrabold text-slate-900">Pro</h3>
-                
+
                 <div className="mt-4 mb-2 flex items-baseline space-x-2">
                   <span className="text-4xl sm:text-5xl font-black text-slate-900">₹999</span>
                   <span className="text-slate-500 text-xs sm:text-sm font-semibold">/ year</span>
@@ -393,17 +394,23 @@ const Pricing = () => {
 
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            
+
             {/* Card 1: Essential */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between text-left hover:shadow-md transition-all">
+            <div 
+              onClick={() => setActiveCardId('essential_card')}
+              className={`bg-white rounded-3xl p-6 flex flex-col justify-between text-left transition-all cursor-pointer border-2 ${
+                activeCardId === 'essential_card' 
+                  ? 'border-purple-600 shadow-xl shadow-purple-500/10 scale-[1.02]' 
+                  : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
+              }`}
+            >
               <div>
                 {/* Card Preview Box */}
                 <div className="h-40 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center p-4 relative mb-4">
-                  <div className={`w-36 h-22 rounded-xl shadow-md p-3 flex flex-col justify-between transition-colors duration-300 ${
-                    essentialColor === 'black' ? 'bg-slate-900 text-white' : 
-                    essentialColor === 'white' ? 'bg-white text-slate-900 border border-slate-200' : 
-                    'bg-blue-600 text-white'
-                  }`}>
+                  <div className={`w-36 h-22 rounded-xl shadow-md p-3 flex flex-col justify-between transition-colors duration-300 ${essentialColor === 'black' ? 'bg-slate-900 text-white' :
+                      essentialColor === 'white' ? 'bg-white text-slate-900 border border-slate-200' :
+                        'bg-blue-600 text-white'
+                    }`}>
                     <div className="flex justify-between items-start">
                       <span className="font-black text-xs">onewinq</span>
                       <Zap className="h-3 w-3" />
@@ -414,41 +421,52 @@ const Pricing = () => {
 
                 {/* Color dots */}
                 <div className="flex items-center justify-center space-x-2 mb-4">
-                  <button 
+                  <button
                     onClick={() => setEssentialColor('black')}
-                    className={`w-3.5 h-3.5 rounded-full bg-slate-900 ring-2 ${essentialColor === 'black' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`} 
+                    className={`w-3.5 h-3.5 rounded-full bg-slate-900 ring-2 ${essentialColor === 'black' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`}
                   />
-                  <button 
+                  <button
                     onClick={() => setEssentialColor('white')}
-                    className={`w-3.5 h-3.5 rounded-full bg-slate-200 border border-slate-400 ring-2 ${essentialColor === 'white' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`} 
+                    className={`w-3.5 h-3.5 rounded-full bg-slate-200 border border-slate-400 ring-2 ${essentialColor === 'white' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`}
                   />
-                  <button 
+                  <button
                     onClick={() => setEssentialColor('blue')}
-                    className={`w-3.5 h-3.5 rounded-full bg-blue-600 ring-2 ${essentialColor === 'blue' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`} 
+                    className={`w-3.5 h-3.5 rounded-full bg-blue-600 ring-2 ${essentialColor === 'blue' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`}
                   />
                 </div>
 
                 <h3 className="text-xl font-extrabold text-slate-900">Essential</h3>
                 <p className="text-xs text-slate-400 font-semibold">PVC Card</p>
                 <p className="text-xs text-slate-600 mt-2 font-medium">Sleek. Minimal. Effective.</p>
-                
+
                 <div className="mt-4 mb-6">
                   <span className="text-2xl font-black text-slate-900">₹499</span>
                 </div>
               </div>
 
               <button
-                onClick={() => setSelectedCardForOrder({ name: 'Essential Card', price: '₹499', productType: 'essential_card' })}
-                className="w-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer shadow-xs"
+                onClick={() => setSelectedCardForOrder({ name: 'Essential Card', price: '₹499', color: essentialColor, productType: 'essential_card' })}
+                className={`w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer ${
+                  activeCardId === 'essential_card'
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md shadow-purple-600/20'
+                    : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 shadow-xs'
+                }`}
               >
                 <span>Order Now</span>
-                <ShoppingCart className="h-4 w-4 text-slate-600" />
+                <ShoppingCart className={`h-4 w-4 ${activeCardId === 'essential_card' ? 'text-white' : 'text-slate-600'}`} />
               </button>
             </div>
 
             {/* Card 2: Signature (Featured with Badge) */}
-            <div className="bg-white border-2 border-purple-600 rounded-3xl p-6 relative flex flex-col justify-between text-left shadow-lg shadow-purple-500/5">
-              
+            <div 
+              onClick={() => setActiveCardId('signature_card')}
+              className={`bg-white rounded-3xl p-6 relative flex flex-col justify-between text-left transition-all cursor-pointer border-2 ${
+                activeCardId === 'signature_card' 
+                  ? 'border-purple-600 shadow-xl shadow-purple-500/10 scale-[1.02]' 
+                  : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
+              }`}
+            >
+
               {/* Badge */}
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-purple-700 text-white px-3.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase">
                 MOST POPULAR
@@ -457,11 +475,10 @@ const Pricing = () => {
               <div>
                 {/* Card Preview Box */}
                 <div className="h-40 bg-purple-50/50 rounded-2xl border border-purple-100 flex items-center justify-center p-4 relative mb-4">
-                  <div className={`w-36 h-22 rounded-xl shadow-lg p-3 flex flex-col justify-between transition-colors duration-300 ${
-                    signatureColor === 'black' ? 'bg-slate-950 text-amber-300 border border-amber-400/30' : 
-                    signatureColor === 'gold' ? 'bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-500 text-slate-900' : 
-                    'bg-gradient-to-tr from-slate-300 to-slate-100 text-slate-900'
-                  }`}>
+                  <div className={`w-36 h-22 rounded-xl shadow-lg p-3 flex flex-col justify-between transition-colors duration-300 ${signatureColor === 'black' ? 'bg-slate-950 text-amber-300 border border-amber-400/30' :
+                      signatureColor === 'gold' ? 'bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-500 text-slate-900' :
+                        'bg-gradient-to-tr from-slate-300 to-slate-100 text-slate-900'
+                    }`}>
                     <div className="flex justify-between items-start">
                       <span className="font-black text-xs">onewinq</span>
                       <Sparkles className="h-3 w-3" />
@@ -472,47 +489,57 @@ const Pricing = () => {
 
                 {/* Color dots */}
                 <div className="flex items-center justify-center space-x-2 mb-4">
-                  <button 
+                  <button
                     onClick={() => setSignatureColor('black')}
-                    className={`w-3.5 h-3.5 rounded-full bg-slate-950 ring-2 ${signatureColor === 'black' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`} 
+                    className={`w-3.5 h-3.5 rounded-full bg-slate-950 ring-2 ${signatureColor === 'black' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`}
                   />
-                  <button 
+                  <button
                     onClick={() => setSignatureColor('gold')}
-                    className={`w-3.5 h-3.5 rounded-full bg-amber-400 ring-2 ${signatureColor === 'gold' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`} 
+                    className={`w-3.5 h-3.5 rounded-full bg-amber-400 ring-2 ${signatureColor === 'gold' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`}
                   />
-                  <button 
+                  <button
                     onClick={() => setSignatureColor('silver')}
-                    className={`w-3.5 h-3.5 rounded-full bg-slate-300 ring-2 ${signatureColor === 'silver' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`} 
+                    className={`w-3.5 h-3.5 rounded-full bg-slate-300 ring-2 ${signatureColor === 'silver' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`}
                   />
                 </div>
 
                 <h3 className="text-xl font-extrabold text-slate-900">Signature</h3>
                 <p className="text-xs text-slate-400 font-semibold">Premium Matte Card</p>
                 <p className="text-xs text-slate-600 mt-2 font-medium">Elegant matte finish with a premium feel.</p>
-                
+
                 <div className="mt-4 mb-6">
                   <span className="text-2xl font-black text-slate-900">₹999</span>
                 </div>
               </div>
 
               <button
-                onClick={() => setSelectedCardForOrder({ name: 'Signature Card', price: '₹999', color: signatureColor })}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer shadow-md shadow-purple-600/20"
+                onClick={() => setSelectedCardForOrder({ name: 'Signature Card', price: '₹999', color: signatureColor, productType: 'signature_card' })}
+                className={`w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer ${
+                  activeCardId === 'signature_card'
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md shadow-purple-600/20'
+                    : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 shadow-xs'
+                }`}
               >
                 <span>Order Now</span>
-                <ShoppingCart className="h-4 w-4 text-white" />
+                <ShoppingCart className={`h-4 w-4 ${activeCardId === 'signature_card' ? 'text-white' : 'text-slate-600'}`} />
               </button>
             </div>
 
             {/* Card 3: Metal */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between text-left hover:shadow-md transition-all">
+            <div 
+              onClick={() => setActiveCardId('metal_card')}
+              className={`bg-white rounded-3xl p-6 flex flex-col justify-between text-left transition-all cursor-pointer border-2 ${
+                activeCardId === 'metal_card' 
+                  ? 'border-purple-600 shadow-xl shadow-purple-500/10 scale-[1.02]' 
+                  : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
+              }`}
+            >
               <div>
                 {/* Card Preview Box */}
                 <div className="h-40 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center p-4 relative mb-4">
-                  <div className={`w-36 h-22 rounded-xl shadow-md p-3 flex flex-col justify-between transition-colors duration-300 ${
-                    metalColor === 'black' ? 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-slate-100 border border-slate-700' : 
-                    'bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 text-slate-900'
-                  }`}>
+                  <div className={`w-36 h-22 rounded-xl shadow-md p-3 flex flex-col justify-between transition-colors duration-300 ${metalColor === 'black' ? 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-slate-100 border border-slate-700' :
+                      'bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 text-slate-900'
+                    }`}>
                     <div className="flex justify-between items-start">
                       <span className="font-black text-xs">onewinq</span>
                       <Award className="h-3 w-3" />
@@ -523,36 +550,47 @@ const Pricing = () => {
 
                 {/* Color dots */}
                 <div className="flex items-center justify-center space-x-2 mb-4">
-                  <button 
+                  <button
                     onClick={() => setMetalColor('black')}
-                    className={`w-3.5 h-3.5 rounded-full bg-slate-900 ring-2 ${metalColor === 'black' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`} 
+                    className={`w-3.5 h-3.5 rounded-full bg-slate-900 ring-2 ${metalColor === 'black' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`}
                   />
-                  <button 
+                  <button
                     onClick={() => setMetalColor('silver')}
-                    className={`w-3.5 h-3.5 rounded-full bg-slate-400 ring-2 ${metalColor === 'silver' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`} 
+                    className={`w-3.5 h-3.5 rounded-full bg-slate-400 ring-2 ${metalColor === 'silver' ? 'ring-purple-600 scale-110' : 'ring-transparent'}`}
                   />
                 </div>
 
                 <h3 className="text-xl font-extrabold text-slate-900">Metal</h3>
                 <p className="text-xs text-slate-400 font-semibold">Stainless Steel Card</p>
                 <p className="text-xs text-slate-600 mt-2 font-medium">Luxury metal card with laser engraving.</p>
-                
+
                 <div className="mt-4 mb-6">
                   <span className="text-2xl font-black text-slate-900">₹2,999</span>
                 </div>
               </div>
 
               <button
-                onClick={() => setSelectedCardForOrder({ name: 'Metal NFC Card', price: '₹2,999', color: metalColor })}
-                className="w-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer shadow-xs"
+                onClick={() => setSelectedCardForOrder({ name: 'Metal NFC Card', price: '₹2,999', color: metalColor, productType: 'metal_card' })}
+                className={`w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer ${
+                  activeCardId === 'metal_card'
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md shadow-purple-600/20'
+                    : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 shadow-xs'
+                }`}
               >
                 <span>Order Now</span>
-                <ShoppingCart className="h-4 w-4 text-slate-600" />
+                <ShoppingCart className={`h-4 w-4 ${activeCardId === 'metal_card' ? 'text-white' : 'text-slate-600'}`} />
               </button>
             </div>
 
             {/* Card 4: Business */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between text-left hover:shadow-md transition-all">
+            <div 
+              onClick={() => setActiveCardId('business_card')}
+              className={`bg-white rounded-3xl p-6 flex flex-col justify-between text-left transition-all cursor-pointer border-2 ${
+                activeCardId === 'business_card' 
+                  ? 'border-purple-600 shadow-xl shadow-purple-500/10 scale-[1.02]' 
+                  : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
+              }`}
+            >
               <div>
                 {/* Card Preview Box */}
                 <div className="h-40 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center p-4 relative mb-4">
@@ -570,7 +608,7 @@ const Pricing = () => {
                 <h3 className="text-xl font-extrabold text-slate-900">Business</h3>
                 <p className="text-xs text-slate-400 font-semibold">Custom Cards</p>
                 <p className="text-xs text-slate-600 mt-2 font-medium">Bulk orders with your brand. Perfect for teams.</p>
-                
+
                 <div className="mt-4 mb-6">
                   <span className="text-lg font-bold text-slate-800">Contact Sales</span>
                 </div>
@@ -578,10 +616,14 @@ const Pricing = () => {
 
               <Link
                 to="/contact"
-                className="w-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer shadow-xs"
+                className={`w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2 cursor-pointer ${
+                  activeCardId === 'business_card'
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md shadow-purple-600/20'
+                    : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 shadow-xs'
+                }`}
               >
                 <span>Contact Us</span>
-                <Briefcase className="h-4 w-4 text-slate-600" />
+                <Briefcase className={`h-4 w-4 ${activeCardId === 'business_card' ? 'text-white' : 'text-slate-600'}`} />
               </Link>
             </div>
 
@@ -617,7 +659,7 @@ const Pricing = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
-                  
+
                   {/* Row 1 */}
                   <tr className="hover:bg-slate-50/50 transition-colors">
                     <td className="py-3.5 px-6 font-semibold text-slate-700 flex items-center space-x-2">
@@ -722,7 +764,7 @@ const Pricing = () => {
         {/* BOTTOM SECTION: FOUNDER EDITION & FREQUENTLY ASKED QUESTIONS */}
         {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
-          
+
           {/* Left Side: Founder Edition Banner */}
           <div className="lg:col-span-7 bg-slate-950 text-white rounded-3xl p-6 sm:p-8 relative overflow-hidden flex flex-col justify-between shadow-xl">
             {/* Gold ambient background glow */}
@@ -763,7 +805,7 @@ const Pricing = () => {
             {/* Bottom Row: Reserve Button & Counter */}
             <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-slate-800 mt-6">
               <button
-                onClick={() => setSelectedCardForOrder({ name: 'Founder Edition Card (Limited)', price: '₹4,999', color: 'Gold Matte' })}
+                onClick={() => setSelectedCardForOrder({ name: 'Founder Edition Card (Limited)', price: '₹4,999', color: 'Gold Matte', productType: 'founder_edition_card' })}
                 className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-6 py-3 rounded-xl text-xs sm:text-sm transition-all inline-flex items-center space-x-2 cursor-pointer shadow-md"
               >
                 <span>Reserve Yours Now</span>
@@ -787,7 +829,7 @@ const Pricing = () => {
               {faqs.map((faq, index) => {
                 const isOpen = openFaq === index;
                 return (
-                  <div 
+                  <div
                     key={index}
                     className="bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all"
                   >
@@ -824,7 +866,7 @@ const Pricing = () => {
       {selectedCardForOrder && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-left space-y-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
-            
+
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs font-bold uppercase text-purple-600 tracking-wider">Order NFC Physical Card</span>
@@ -866,54 +908,76 @@ const Pricing = () => {
 
                   setOrderSubmitting(true);
                   try {
-                    const paymentOrder = await createBackendRazorpayOrder({
-                      productType: selectedCardForOrder.productType,
-                      cardName: selectedCardForOrder.name,
-                      cardColor: selectedCardForOrder.color || 'Standard Black',
-                      customNameOnCard: customNameOnCard || customerName,
-                      price: selectedCardForOrder.price,
-                      customerName,
-                      email: email || user?.email || '',
-                      phone,
-                      shippingAddress,
-                      paymentStatus: paymentMethod === 'Cash on Delivery' ? 'Pending' : 'Paid',
-                      paymentMethod,
-                      transactionId,
-                      notes,
-                      userId: user?._id || null,
-                    });
+                    if (paymentMethod === 'Cash on Delivery') {
+                      const response = await axios.post(`${API_URL}/orders`, {
+                        productType: selectedCardForOrder.productType,
+                        cardName: selectedCardForOrder.name,
+                        cardColor: selectedCardForOrder.color || 'Standard Black',
+                        customNameOnCard: customNameOnCard || customerName,
+                        price: selectedCardForOrder.price,
+                        customerName,
+                        email: email || user?.email || '',
+                        phone,
+                        shippingAddress,
+                        notes,
+                        userId: user?._id || null,
+                      });
 
-                    await openRazorpayCheckout({
-                      orderId: paymentOrder.orderId,
-                      amount: paymentOrder.amount,
-                      currency: paymentOrder.currency,
-                      keyId: paymentOrder.keyId,
-                      customerName,
-                      phone,
-                      email: user?.email || '',
-                      onSuccess: async (response) => {
-                        const verifyResponse = await verifyRazorpayPayment({
-                          razorpay_order_id: response.razorpay_order_id,
-                          razorpay_payment_id: response.razorpay_payment_id,
-                          razorpay_signature: response.razorpay_signature,
-                        });
+                      if (response.data.success) {
+                        setOrderSuccessMsg('Cash on Delivery order placed successfully! Admin notification sent.');
+                        setCustomerName('');
+                        setPhone('');
+                        setShippingAddress('');
+                      } else {
+                        setOrderSuccessMsg('Failed to place order.');
+                      }
+                    } else {
+                      const paymentOrder = await createBackendRazorpayOrder({
+                        productType: selectedCardForOrder.productType,
+                        cardName: selectedCardForOrder.name,
+                        cardColor: selectedCardForOrder.color || 'Standard Black',
+                        customNameOnCard: customNameOnCard || customerName,
+                        price: selectedCardForOrder.price,
+                        customerName,
+                        email: email || user?.email || '',
+                        phone,
+                        shippingAddress,
+                        notes,
+                        userId: user?._id || null,
+                      });
 
-                        if (verifyResponse.success) {
-                          setOrderSuccessMsg('Payment verified successfully! Admin notification sent.');
-                          setCustomerName('');
-                          setPhone('');
-                          setShippingAddress('');
-                        } else {
-                          setOrderSuccessMsg('Payment verification failed.');
-                        }
-                      },
-                      onFailure: (error) => {
-                        setOrderSuccessMsg(error?.description || 'Payment failed.');
-                      },
-                      onCancel: () => {
-                        setOrderSuccessMsg('Payment cancelled.');
-                      },
-                    });
+                      await openRazorpayCheckout({
+                        orderId: paymentOrder.orderId,
+                        amount: paymentOrder.amount,
+                        currency: paymentOrder.currency,
+                        keyId: paymentOrder.keyId,
+                        customerName,
+                        phone,
+                        email: user?.email || '',
+                        onSuccess: async (response) => {
+                          const verifyResponse = await verifyRazorpayPayment({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                          });
+
+                          if (verifyResponse.success) {
+                            setOrderSuccessMsg('Payment verified successfully! Admin notification sent.');
+                            setCustomerName('');
+                            setPhone('');
+                            setShippingAddress('');
+                          } else {
+                            setOrderSuccessMsg('Payment verification failed.');
+                          }
+                        },
+                        onFailure: (error) => {
+                          setOrderSuccessMsg(error?.description || 'Payment failed.');
+                        },
+                        onCancel: () => {
+                          setOrderSuccessMsg('Payment cancelled.');
+                        },
+                      });
+                    }
                   } catch (err) {
                     alert(err.response?.data?.message || err.message || 'Failed to place order. Please try again.');
                   } finally {
@@ -985,39 +1049,23 @@ const Pricing = () => {
 
                 <div className="border-t border-slate-100 pt-3 space-y-3">
                   <span className="text-xs font-bold uppercase text-slate-800 block">Payment Method</span>
-                  
+
                   <div className="grid grid-cols-2 gap-2">
-                    {['UPI', 'QR Code', 'Card / NetBanking', 'Cash on Delivery'].map((method) => (
+                    {['Pay Online (Razorpay)', 'Cash on Delivery'].map((method) => (
                       <button
                         type="button"
                         key={method}
                         onClick={() => setPaymentMethod(method)}
-                        className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-left flex items-center justify-between cursor-pointer ${
-                          paymentMethod === method 
-                            ? 'border-purple-600 bg-purple-50 text-purple-700 shadow-2xs' 
+                        className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-left flex items-center justify-between cursor-pointer ${paymentMethod === method
+                            ? 'border-purple-600 bg-purple-50 text-purple-700 shadow-2xs'
                             : 'border-slate-200 hover:border-slate-300 text-slate-600'
-                        }`}
+                          }`}
                       >
                         <span>{method}</span>
                         {paymentMethod === method && <Check className="h-3.5 w-3.5 text-purple-600" />}
                       </button>
                     ))}
                   </div>
-
-                  {paymentMethod !== 'Cash on Delivery' && (
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        UPI Ref / Transaction Reference ID <span className="text-slate-400 font-normal">(Optional/Recommended)</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={transactionId}
-                        onChange={(e) => setTransactionId(e.target.value)}
-                        placeholder="e.g. UTR 4239102941 / UPI Ref 928301"
-                        className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-purple-600 font-mono"
-                      />
-                    </div>
-                  )}
                 </div>
 
                 <div className="pt-2">
